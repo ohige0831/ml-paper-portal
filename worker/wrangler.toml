@@ -1,0 +1,22 @@
+name = "ml-paper-portal-worker"
+main = "src/index.ts"
+compatibility_date = "2024-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron: daily at 3:00 UTC
+[triggers]
+crons = ["0 3 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ml-paper-portal"
+database_id = "4c51fd8c-cd8a-4d9b-b2dc-608de38a4c6b"
+
+[vars]
+OPENAI_MODEL = "gpt-4o-mini"
+SITE_BASE_URL = "https://ml-paper-portal-web.pages.dev"
+
+# Secrets (set via: wrangler secret put OPENAI_API_KEY)
+# OPENAI_API_KEY
+# ADMIN_PASSWORD
+# INGEST_TOKEN    ← GitHub Actions から /api/ingest を叩く際の Bearer token

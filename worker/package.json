@@ -1,0 +1,19 @@
+{
+  "name": "ml-paper-portal-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute ml-paper-portal --file=../migrations/0001_initial.sql && wrangler d1 execute ml-paper-portal --file=../migrations/0002_seed_tags.sql",
+    "db:migrate:local": "wrangler d1 execute ml-paper-portal --local --file=../migrations/0001_initial.sql && wrangler d1 execute ml-paper-portal --local --file=../migrations/0002_seed_tags.sql"
+  },
+  "dependencies": {
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^3.80.0"
+  }
+}

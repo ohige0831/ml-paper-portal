@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Paper Portal - 機械学習論文の日本語入口</title>
+<meta name="description" content="機械学習系の論文を日本語の短い導入文でパラパラ眺められるサイト。読む前に「面白そうか」を素早く判断できます。">
+<link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="site-logo">ML Paper Portal</a>
+    <nav class="site-nav">
+      <a href="/latest/">新着</a>
+      <a href="/tags/">タグ</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>機械学習論文の<br>日本語入口</h1>
+    <p>「読む価値があるか」を短時間で判断できるように。<br>気になったら元論文へ。</p>
+  </div>
+</section>
+
+<main>
+  <!-- 今日のおすすめ -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">
+        今日のおすすめ
+        <a href="/latest/">もっと見る →</a>
+      </h2>
+      <div id="featured-grid" class="paper-grid">
+        <p class="loading">読み込み中...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 最新記事 -->
+  <section class="section section--gray">
+    <div class="container">
+      <h2 class="section-title">
+        新着論文
+        <a href="/latest/">すべて見る →</a>
+      </h2>
+      <div id="latest-grid" class="paper-grid">
+        <p class="loading">読み込み中...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- タグから探す -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">
+        タグから探す
+        <a href="/tags/">タグ一覧 →</a>
+      </h2>
+      <div id="popular-tags" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <p class="loading">読み込み中...</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>ML Paper Portal — 機械学習論文の日本語入口サイト</p>
+    <p style="margin-top:8px;">論文情報は <a href="https://openalex.org" target="_blank">OpenAlex</a> より取得。要約は参考情報です。必ず元論文をご確認ください。</p>
+  </div>
+</footer>
+
+<script type="module">
+import { fetchJson, renderPaperGrid, tagHtml, escHtml } from '/js/app.js';
+
+async function init() {
+  // おすすめ論文
+  try {
+    const featured = await fetchJson('/api/featured');
+    renderPaperGrid('featured-grid', featured);
+  } catch {
+    document.getElementById('featured-grid').innerHTML = '<p class="empty">読み込みに失敗しました</p>';
+  }
+
+  // 最新論文
+  try {
+    const latest = await fetchJson('/api/papers?limit=6');
+    renderPaperGrid('latest-grid', latest.items || latest);
+  } catch {
+    document.getElementById('latest-grid').innerHTML = '<p class="empty">読み込みに失敗しました</p>';
+  }
+
+  // 人気タグ
+  try {
+    const tags = await fetchJson('/api/tags');
+    const el = document.getElementById('popular-tags');
+    const popular = tags.filter(t => t.paper_count > 0).slice(0, 16);
+    if (popular.length === 0) {
+      el.innerHTML = '<p class="empty">タグがまだありません</p>';
+    } else {
+      el.innerHTML = popular.map(t =>
+        `<a href="/tags/${escHtml(t.slug)}" class="tag tag--tier${t.tier}" style="font-size:14px;padding:5px 14px;">${escHtml(t.name)}</a>`
+      ).join('');
+    }
+  } catch {
+    document.getElementById('popular-tags').innerHTML = '';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

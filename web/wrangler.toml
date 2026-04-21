@@ -1,0 +1,9 @@
+name = "ml-paper-portal-web"
+pages_build_output_dir = "public"
+compatibility_date = "2024-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ml-paper-portal"
+database_id = "4c51fd8c-cd8a-4d9b-b2dc-608de38a4c6b"

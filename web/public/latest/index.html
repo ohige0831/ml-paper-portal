@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新着論文一覧 - ML Paper Portal</title>
+<meta name="description" content="機械学習系の最新論文を日本語の短い導入文とともに一覧表示。">
+<link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="site-logo">ML Paper Portal</a>
+    <nav class="site-nav">
+      <a href="/latest/">新着</a>
+      <a href="/tags/">タグ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="container">
+      <h1 class="section-title">新着論文</h1>
+      <div id="paper-grid" class="paper-grid">
+        <p class="loading">読み込み中...</p>
+      </div>
+      <div id="pagination" class="pagination" style="margin-top:32px;"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>ML Paper Portal — 機械学習論文の日本語入口サイト</p>
+    <p style="margin-top:8px;">論文情報は <a href="https://openalex.org" target="_blank">OpenAlex</a> より取得。要約は参考情報です。必ず元論文をご確認ください。</p>
+  </div>
+</footer>
+
+<script type="module">
+import { fetchJson, renderPaperGrid, escHtml } from '/js/app.js';
+
+const PAGE_SIZE = 20;
+let currentPage = 1;
+
+async function loadPage(page) {
+  const offset = (page - 1) * PAGE_SIZE;
+  document.getElementById('paper-grid').innerHTML = '<p class="loading">読み込み中...</p>';
+  try {
+    const data = await fetchJson(`/api/papers?limit=${PAGE_SIZE}&offset=${offset}`);
+    const items = data.items || data;
+    const total = data.total || items.length;
+    renderPaperGrid('paper-grid', items);
+    renderPagination(page, total);
+    currentPage = page;
+  } catch {
+    document.getElementById('paper-grid').innerHTML = '<p class="empty">読み込みに失敗しました</p>';
+  }
+}
+
+function renderPagination(page, total) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+  const el = document.getElementById('pagination');
+  let html = '';
+  if (page > 1) html += `<a href="#" onclick="goPage(${page-1});return false;">← 前</a>`;
+  html += `<span class="current">${page} / ${totalPages}</span>`;
+  if (page < totalPages) html += `<a href="#" onclick="goPage(${page+1});return false;">次 →</a>`;
+  el.innerHTML = html;
+}
+
+window.goPage = (p) => { window.scrollTo(0,0); loadPage(p); };
+loadPage(1);
+</script>
+</body>
+</html>

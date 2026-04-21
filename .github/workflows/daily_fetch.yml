@@ -1,0 +1,28 @@
+name: Daily OpenAlex Fetch
+
+on:
+  schedule:
+    # 3:10 UTC daily — 10 minutes after Worker cron (summarize) runs at 3:00
+    # Worker cron handles summarize; this workflow handles fetch
+    - cron: '10 3 * * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch from OpenAlex and ingest to Worker
+        run: node scripts/fetch_openalex.js
+        env:
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          INGEST_TOKEN: ${{ secrets.INGEST_TOKEN }}
+          OPENALEX_MAILTO: kagerou5100@gmail.com

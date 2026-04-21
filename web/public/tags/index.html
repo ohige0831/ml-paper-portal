@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タグ一覧 - ML Paper Portal</title>
+<meta name="description" content="機械学習論文のタグ一覧。LLM、Vision、Diffusionなど分野・手法別に論文を探せます。">
+<link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="site-logo">ML Paper Portal</a>
+    <nav class="site-nav">
+      <a href="/latest/">新着</a>
+      <a href="/tags/">タグ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="container">
+      <h1 class="section-title">タグから探す</h1>
+      <div id="tier1-section">
+        <h2 style="font-size:15px;font-weight:600;color:#666;margin-bottom:12px;">分野・タスク</h2>
+        <div id="tier1-tags" class="tag-list-grid"></div>
+      </div>
+      <div id="tier2-section" style="margin-top:32px;">
+        <h2 style="font-size:15px;font-weight:600;color:#666;margin-bottom:12px;">モデル・手法</h2>
+        <div id="tier2-tags" class="tag-list-grid"></div>
+      </div>
+      <div id="tier3-section" style="margin-top:32px;">
+        <h2 style="font-size:15px;font-weight:600;color:#666;margin-bottom:12px;">技術要素・特徴</h2>
+        <div id="tier3-tags" class="tag-list-grid"></div>
+      </div>
+      <p id="loading" class="loading">読み込み中...</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>ML Paper Portal — 機械学習論文の日本語入口サイト</p>
+    <p style="margin-top:8px;">論文情報は <a href="https://openalex.org" target="_blank">OpenAlex</a> より取得。</p>
+  </div>
+</footer>
+
+<script type="module">
+import { fetchJson, escHtml } from '/js/app.js';
+
+async function init() {
+  try {
+    const tags = await fetchJson('/api/tags');
+    document.getElementById('loading').style.display = 'none';
+
+    function renderTier(containerId, tier) {
+      const filtered = tags.filter(t => t.tier === tier && t.paper_count > 0);
+      const el = document.getElementById(containerId);
+      if (filtered.length === 0) {
+        el.closest('[id$="-section"]').style.display = 'none';
+        return;
+      }
+      el.innerHTML = filtered.map(t => `
+        <a href="/tags/${escHtml(t.slug)}" class="tag-list-card">
+          <div class="tag-list-card__name">${escHtml(t.name)}</div>
+          <div class="tag-list-card__count">${t.paper_count}件</div>
+        </a>
+      `).join('');
+    }
+
+    renderTier('tier1-tags', 1);
+    renderTier('tier2-tags', 2);
+    renderTier('tier3-tags', 3);
+  } catch {
+    document.getElementById('loading').textContent = '読み込みに失敗しました';
+  }
+}
+init();
+</script>
+</body>
+</html>
