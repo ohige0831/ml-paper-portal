@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
- * fetch_openalex.js — 層別サンプリング版
- * [TRIAL B案 2026-04-22〜2026-04-29]
+ * fetch_openalex.js — 3層スリム版
+ * [Step 1: 2026-04-23〜 / 変更: 8層50件/3回→3層20件/1回]
  *
- * 公開時期 × 被引用数で 8 層に分けてランダムサンプリング。
- * OpenAlex の sample=N パラメータ（seed なし）を使い、
- * 毎回異なる候補が来るようにする（同じ顔ぶれを踏みにくい）。
+ * arXiv 直取得 + OpenAlex 補強の運用方針に合わせ、
+ * OpenAlex 仕入れを「補完」として軽量化。
+ * 429 削減・API 負荷軽減・重複候補削減が目的。
  *
- * 層配分 (計 50 件/回):
- *   新着 (last 90 days):    uncited(8) + low1-19(10) + cited20+(7)  = 25
- *   中間 (91d〜730d):       low0-9(4)  + mid10-49(6) + high50+(5)   = 15
- *   定番 (731d+):           mid20-99(4) + high100+(6)                = 10
+ * 層配分 (計 20 件/回):
+ *   new-hot   (last 90 days,  ≥10 citations):  8
+ *   mid-solid (91d〜730d,     20-100 citations): 7
+ *   classic   (731d+,         ≥100 citations):  5
  *
  * 元に戻すには: git checkout scripts/fetch_openalex.js
  *
@@ -50,22 +50,17 @@ function daysAgo(n) {
 
 function buildLayers() {
   const d90  = daysAgo(90);
-  const d91  = daysAgo(91);   // exclusive lower bound for 中間層
+  const d91  = daysAgo(91);
   const d730 = daysAgo(730);
-  const d731 = daysAgo(731);  // exclusive lower bound for 定番層
+  const d731 = daysAgo(731);
 
   return [
-    // 新着層 (last 90 days) — 25 papers
-    { label: 'new-uncited',   from: d90,  to: null, citMin: null, citMax: 0,    n: 8  },
-    { label: 'new-low',       from: d90,  to: null, citMin: 1,    citMax: 19,   n: 10 },
-    { label: 'new-cited',     from: d90,  to: null, citMin: 20,   citMax: null, n: 7  },
-    // 中間層 (91〜730 days ago) — 15 papers
-    { label: 'mid-low',       from: d730, to: d91,  citMin: null, citMax: 9,    n: 4  },
-    { label: 'mid-mid',       from: d730, to: d91,  citMin: 10,   citMax: 49,   n: 6  },
-    { label: 'mid-high',      from: d730, to: d91,  citMin: 50,   citMax: null, n: 5  },
-    // 定番層 (731+ days ago) — 10 papers
-    { label: 'classic-mid',   from: null, to: d731, citMin: 20,   citMax: 99,   n: 4  },
-    { label: 'classic-high',  from: null, to: d731, citMin: 100,  citMax: null, n: 6  },
+    // new-hot: 最近90日 × 被引用10以上 — 旬の話題論文
+    { label: 'new-hot',    from: d90,  to: null, citMin: 10,  citMax: null, n: 8 },
+    // mid-solid: 91〜730日 × 被引用20〜100 — 定評ある中堅論文
+    { label: 'mid-solid',  from: d730, to: d91,  citMin: 20,  citMax: 100,  n: 7 },
+    // classic: 731日以上 × 被引用100以上 — 影響力の大きい古典論文
+    { label: 'classic',    from: null, to: d731, citMin: 100, citMax: null, n: 5 },
   ];
 }
 
@@ -136,7 +131,7 @@ async function ingest(works) {
 async function main() {
   console.log('[fetch_openalex] mode=auto (stratified sampling)');
   const layers = buildLayers();
-  console.log(`[fetch_openalex] ${layers.length} layers, target 50 papers`);
+  console.log(`[fetch_openalex] ${layers.length} layers, target 20 papers`);
 
   const layerCounts = {};
   const allWorks = [];

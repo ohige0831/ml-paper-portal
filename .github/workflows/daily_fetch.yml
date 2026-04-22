@@ -2,14 +2,11 @@ name: Daily OpenAlex Fetch
 
 on:
   schedule:
-    # [TRIAL B案 2026-04-22〜2026-04-29] fetch を1日3回に変更
-    # 試験運用終了後は以下に戻すこと:
-    #   - cron: '10 3 * * *'
-    # スケジュール: 09:00 / 15:00 / 21:00 JST (= 00:00 / 06:00 / 12:00 UTC)
-    # Worker cron (summarize) は 10分後: 00:10 / 06:10 / 12:10 UTC
+    # [Step 1: 2026-04-23〜] 1日1回 (09:00 JST = 00:00 UTC) に縮小
+    # 変更前: 3回/日 (00:00/06:00/12:00 UTC), 50件/回
+    # 変更後: 1回/日 (00:00 UTC), 20件/回
+    # Worker cron (summarize) は 00:10 UTC
     - cron: '0 0 * * *'
-    - cron: '0 6 * * *'
-    - cron: '0 12 * * *'
   workflow_dispatch:
     # Allow manual trigger from GitHub Actions UI
 
