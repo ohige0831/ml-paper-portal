@@ -21,6 +21,9 @@ export interface Paper {
   primary_topic: string | null;
   topics: string;               // JSON: string[]
   abstract: string | null;
+  source: string;               // 'auto' | 'manual' | 'keyword_curated'
+  arxiv_id: string | null;      // bare arXiv ID (e.g. "2401.12345"), null for non-arXiv
+  is_preprint: number;          // 1 if sourced from arXiv, 0 otherwise
   created_at: string;
 }
 
@@ -56,6 +59,9 @@ export interface PublishState {
   withdrawn_at: string | null;
   withdrawn_reason: string | null;
   withdrawn_by: string | null;
+  rejected_reason: string | null;
+  rejected_by: string | null;
+  rejected_at: string | null;
 }
 
 export type PaperStatus =
@@ -66,7 +72,8 @@ export type PaperStatus =
   | 'published'
   | 'error'
   | 'quarantined'   // failed ML-relevance or metadata validation at ingest
-  | 'withdrawn';    // manually retracted from public view
+  | 'withdrawn'     // manually retracted from public view
+  | 'rejected';     // admin dismissed from review — NOT re-summarized automatically
 
 // OpenAlex API response shape (partial)
 export interface OpenAlexWork {
@@ -122,4 +129,7 @@ export interface PaperWithSummary {
   withdrawn_at?: string | null;
   withdrawn_reason?: string | null;
   withdrawn_by?: string | null;
+  rejected_reason?: string | null;
+  rejected_by?: string | null;
+  rejected_at?: string | null;
 }

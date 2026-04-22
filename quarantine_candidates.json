@@ -1,0 +1,148 @@
+[
+  {
+    "id": "W1531368347",
+    "title": "Proceedings of the 56th Annual ACM Symposium on Theory of Computing",
+    "published_date": "2024-06-10",
+    "primary_topic": "Computability, Logic, AI Algorithms",
+    "topics": [
+      "Computability, Logic, AI Algorithms"
+    ],
+    "doi": "https://doi.org/10.1145/3618260",
+    "status": "fetched",
+    "reasons": [
+      "not ML-related (topics: Computability, Logic, AI Algorithms / Computability, Logic, AI Algorithms)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4404046121",
+    "title": "The PRIDE database at 20 years: 2025 update",
+    "published_date": "2024-11-04",
+    "primary_topic": "Research Data Management Practices",
+    "topics": [
+      "Research Data Management Practices",
+      "Scientific Computing and Data Management",
+      "Genetics, Bioinformatics, and Biomedical Research"
+    ],
+    "doi": "https://doi.org/10.1093/nar/gkae1011",
+    "status": "fetched",
+    "reasons": [
+      "not ML-related (topics: Research Data Management Practices / Research Data Management Practices / Scientific Computing and Data Management / Genetics, Bioinformatics, and Biomedical Research)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4396831394",
+    "title": "Revolutionizing Supply Chain Management: Real-time Data Processing and Concurrency",
+    "published_date": "2024-05-11",
+    "primary_topic": "Real-Time Systems Scheduling",
+    "topics": [
+      "Real-Time Systems Scheduling",
+      "Simulation Techniques and Applications",
+      "Scheduling and Optimization Algorithms"
+    ],
+    "doi": "https://doi.org/10.38124/ijisrt/ijisrt24may207",
+    "status": "published",
+    "reasons": [
+      "not ML-related (topics: Real-Time Systems Scheduling / Real-Time Systems Scheduling / Simulation Techniques and Applications / Scheduling and Optimization Algorithms)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4404534210",
+    "title": "A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions",
+    "published_date": "2024-11-20",
+    "primary_topic": "Topic Modeling",
+    "topics": [
+      "Topic Modeling",
+      "Ferroelectric and Negative Capacitance Devices",
+      "Text Readability and Simplification"
+    ],
+    "doi": "https://doi.org/10.1145/3703155",
+    "status": "published",
+    "reasons": [
+      "not ML-related (topics: Topic Modeling / Topic Modeling / Ferroelectric and Negative Capacitance Devices / Text Readability and Simplification)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4405670661",
+    "title": "MEGA12: Molecular Evolutionary Genetic Analysis Version 12 for Adaptive and Green Computing",
+    "published_date": "2024-12-01",
+    "primary_topic": "Evolutionary Algorithms and Applications",
+    "topics": [
+      "Evolutionary Algorithms and Applications"
+    ],
+    "doi": "https://doi.org/10.1093/molbev/msae263",
+    "status": "published",
+    "reasons": [
+      "not ML-related (topics: Evolutionary Algorithms and Applications / Evolutionary Algorithms and Applications)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W2626610348",
+    "title": "Multiscale structural similarity for image quality assessment",
+    "published_date": "2025-01-01",
+    "primary_topic": "Image and Video Quality Assessment",
+    "topics": [
+      "Image and Video Quality Assessment",
+      "Advanced Image Fusion Techniques",
+      "Image and Signal Denoising Methods"
+    ],
+    "doi": "https://doi.org/10.57702/c0fj14hf",
+    "status": "published",
+    "reasons": [
+      "not ML-related (topics: Image and Video Quality Assessment / Image and Video Quality Assessment / Advanced Image Fusion Techniques / Image and Signal Denoising Methods)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4404511389",
+    "title": "PubChem 2025 update",
+    "published_date": "2024-11-18",
+    "primary_topic": "Computational Drug Discovery Methods",
+    "topics": [
+      "Computational Drug Discovery Methods",
+      "Biomedical Text Mining and Ontologies",
+      "Bioinformatics and Genomic Networks"
+    ],
+    "doi": "https://doi.org/10.1093/nar/gkae1059",
+    "status": "published",
+    "reasons": [
+      "not ML-related (topics: Computational Drug Discovery Methods / Computational Drug Discovery Methods / Biomedical Text Mining and Ontologies / Bioinformatics and Genomic Networks)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4401917994",
+    "title": "Building Face Ageing Model Using Face Synthesis",
+    "published_date": "2024-08-27",
+    "primary_topic": "Face recognition and analysis",
+    "topics": [
+      "Face recognition and analysis"
+    ],
+    "doi": "https://doi.org/10.38124/ijisrt/ijisrt24aug265",
+    "status": "published",
+    "reasons": [
+      "not ML-related (topics: Face recognition and analysis / Face recognition and analysis)"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  }
+]

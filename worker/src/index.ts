@@ -35,7 +35,8 @@ async function runCronJob(env: Env): Promise<void> {
   console.log(`[cron] Starting summarize at ${startedAt}`);
   try {
     const model = env.OPENAI_MODEL ?? 'gpt-4o-mini';
-    const sumResult = await runSummarize(env.DB, env.OPENAI_API_KEY, model, 10);
+    // [TRIAL B案 2026-04-22〜2026-04-29] batchSize=30（元: 10）
+    const sumResult = await runSummarize(env.DB, env.OPENAI_API_KEY, model, 30);
 
     // Count current pipeline states for visibility
     const counts = await env.DB

@@ -95,7 +95,8 @@ export async function runSummarize(
   db: D1Database,
   apiKey: string,
   model = 'gpt-4o-mini',
-  batchSize = 10,
+  // [TRIAL B案 2026-04-22〜2026-04-29] 30件/回（元: 10件/回）
+  batchSize = 30,
 ): Promise<{ processed: number; errors: number }> {
   const papers = await getPendingForSummarize(db, batchSize);
   const allTags = await getAllTags(db);

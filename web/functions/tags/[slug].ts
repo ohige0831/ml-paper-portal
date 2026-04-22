@@ -77,6 +77,7 @@ function renderTagPage(tag: NonNullable<Tag>, papers: Papers, total: number): st
     <nav class="site-nav">
       <a href="/latest/">新着</a>
       <a href="/tags/">タグ</a>
+      <a href="/random" class="site-nav__random">ランダム</a>
     </nav>
   </div>
 </header>

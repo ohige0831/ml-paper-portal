@@ -6,23 +6,45 @@ export async function paperExists(db: D1Database, id: string): Promise<boolean> 
   return row !== null;
 }
 
-export async function insertPaper(db: D1Database, paper: Omit<Paper, 'created_at'>): Promise<void> {
+// source is optional — defaults to 'auto' (auto-fetched by GitHub Actions)
+export async function insertPaper(
+  db: D1Database,
+  paper: Omit<Paper, 'created_at' | 'source' | 'arxiv_id' | 'is_preprint'> & {
+    source?: string;
+    arxiv_id?: string | null;
+    is_preprint?: number;
+  },
+): Promise<void> {
   await db.prepare(`
     INSERT OR IGNORE INTO papers
       (id, doi, title, authors, published_date, citation_count,
-       oa_url, pdf_url, openalex_url, primary_topic, topics, abstract)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       oa_url, pdf_url, openalex_url, primary_topic, topics, abstract,
+       source, arxiv_id, is_preprint)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     paper.id, paper.doi, paper.title, paper.authors,
     paper.published_date, paper.citation_count,
     paper.oa_url, paper.pdf_url, paper.openalex_url,
     paper.primary_topic, paper.topics, paper.abstract,
+    paper.source ?? 'auto',
+    paper.arxiv_id ?? null,
+    paper.is_preprint ?? 0,
   ).run();
 
   await db.prepare(`
     INSERT OR IGNORE INTO publish_states (paper_id, status)
     VALUES (?, 'fetched')
   `).bind(paper.id).run();
+}
+
+export async function findPaperByDoi(db: D1Database, doi: string): Promise<string | null> {
+  const row = await db.prepare('SELECT id FROM papers WHERE doi = ?').bind(doi).first<{ id: string }>();
+  return row?.id ?? null;
+}
+
+export async function findPaperByArxivId(db: D1Database, arxivId: string): Promise<string | null> {
+  const row = await db.prepare('SELECT id FROM papers WHERE arxiv_id = ?').bind(arxivId).first<{ id: string }>();
+  return row?.id ?? null;
 }
 
 export async function getTagsBySlug(db: D1Database, slugs: string[]): Promise<Tag[]> {
@@ -118,6 +140,39 @@ export async function withdrawPaper(
   `).bind(paperId, reason, by).run();
 }
 
+export async function rejectPaper(
+  db: D1Database,
+  paperId: string,
+  reason: string,
+  by: string = 'admin',
+): Promise<void> {
+  await db.prepare(`
+    INSERT INTO publish_states (paper_id, status, rejected_at, rejected_reason, rejected_by, updated_at)
+    VALUES (?, 'rejected', datetime('now'), ?, ?, datetime('now'))
+    ON CONFLICT(paper_id) DO UPDATE SET
+      status = 'rejected',
+      rejected_at = datetime('now'),
+      rejected_reason = excluded.rejected_reason,
+      rejected_by = excluded.rejected_by,
+      updated_at = datetime('now')
+  `).bind(paperId, reason, by).run();
+}
+
+export async function resummarizePaper(
+  db: D1Database,
+  paperId: string,
+): Promise<void> {
+  await db.prepare(`
+    UPDATE publish_states
+    SET status = 'fetched',
+        rejected_at = NULL,
+        rejected_reason = NULL,
+        rejected_by = NULL,
+        updated_at = datetime('now')
+    WHERE paper_id = ?
+  `).bind(paperId).run();
+}
+
 export async function restorePaper(
   db: D1Database,
   paperId: string,
@@ -148,7 +203,8 @@ export async function getPapersByStatus(
 ): Promise<PaperWithSummary[]> {
   const rows = await db.prepare(`
     SELECT p.*, ps.status, ps.error_message,
-           ps.withdrawn_at, ps.withdrawn_reason, ps.withdrawn_by
+           ps.withdrawn_at, ps.withdrawn_reason, ps.withdrawn_by,
+           ps.rejected_at, ps.rejected_reason, ps.rejected_by
     FROM papers p
     JOIN publish_states ps ON ps.paper_id = p.id
     WHERE ps.status = ?
@@ -160,13 +216,25 @@ export async function getPapersByStatus(
     withdrawn_at: string | null;
     withdrawn_reason: string | null;
     withdrawn_by: string | null;
+    rejected_at: string | null;
+    rejected_reason: string | null;
+    rejected_by: string | null;
   }>();
 
   return Promise.all(rows.results.map(async (row) => {
-    const { status: st, error_message, withdrawn_at, withdrawn_reason, withdrawn_by, ...paper } = row;
+    const {
+      status: st, error_message,
+      withdrawn_at, withdrawn_reason, withdrawn_by,
+      rejected_at, rejected_reason, rejected_by,
+      ...paper
+    } = row;
     const summary = await getLatestSummary(db, paper.id);
     const tags = await getPaperTags(db, paper.id);
-    return { paper, summary, tags, status: st, error_message, withdrawn_at, withdrawn_reason, withdrawn_by };
+    return {
+      paper, summary, tags, status: st, error_message,
+      withdrawn_at, withdrawn_reason, withdrawn_by,
+      rejected_at, rejected_reason, rejected_by,
+    };
   }));
 }
 

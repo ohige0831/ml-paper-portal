@@ -1,0 +1,455 @@
+[
+  {
+    "id": "W4226369673",
+    "title": "Hub genes in a pan-cancer co-expression network show potential for predicting drug responses",
+    "published_date": "2050-02-21",
+    "primary_topic": "Computational Drug Discovery Methods",
+    "topics": [
+      "Computational Drug Discovery Methods",
+      "Protein Degradation and Inhibitors",
+      "Bioinformatics and Genomic Networks"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.2574643",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2050-02-21"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4393614663",
+    "title": "data_farmer",
+    "published_date": "2036-02-29",
+    "primary_topic": "ICT in Developing Communities",
+    "topics": [
+      "ICT in Developing Communities",
+      "Smart Agriculture and AI"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.6327222",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2036-02-29"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7128624139",
+    "title": "Combating Data and Target Shifts in Visual Tasks",
+    "published_date": "2031-01-01",
+    "primary_topic": "Domain Adaptation and Few-Shot Learning",
+    "topics": [
+      "Domain Adaptation and Few-Shot Learning",
+      "Generative Adversarial Networks and Image Synthesis",
+      "Multimodal Machine Learning Applications"
+    ],
+    "doi": "https://doi.org/10.17638/03194353",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2031-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7116362194",
+    "title": "MODELING HOSPITALITY AND TOURISM STRATEGIES",
+    "published_date": "2030-01-01",
+    "primary_topic": "AI in Service Interactions",
+    "topics": [
+      "AI in Service Interactions",
+      "Sharing Economy and Platforms",
+      "Diverse Interdisciplinary Research Innovations"
+    ],
+    "doi": "https://doi.org/10.7273/000007504",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2030-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7128633535",
+    "title": "When Identity Sits on the Surface An Investigation into the Effectiveness of Surface pXRF for the Identification of Constantinian Copies in Romano-British Coin Hoards Volume I",
+    "published_date": "2030-01-01",
+    "primary_topic": "Currency Recognition and Detection",
+    "topics": [
+      "Currency Recognition and Detection",
+      "Cultural Heritage Materials Analysis",
+      "X-ray Spectroscopy and Fluorescence Analysis"
+    ],
+    "doi": "https://doi.org/10.17638/03194992",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2030-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7128510716",
+    "title": "Digital Currency, Information Frictions and Monetary Policy",
+    "published_date": "2029-01-01",
+    "primary_topic": "Blockchain Technology Applications and Security",
+    "topics": [
+      "Blockchain Technology Applications and Security",
+      "Economic theories and models",
+      "European Monetary and Fiscal Policies"
+    ],
+    "doi": "https://doi.org/10.17638/03191396",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2029-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7124539528",
+    "title": "What is the Potential of ICTs to Improve Education in Low and Middle Income Countries?",
+    "published_date": "2028-08-27",
+    "primary_topic": "ICT in Developing Communities",
+    "topics": [
+      "ICT in Developing Communities",
+      "Gender and Technology in Education",
+      "Educational Technology and Optimization"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18280414",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-08-27"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7124567928",
+    "title": "What is the Potential of ICTs to Improve Education in Low and Middle Income Countries?",
+    "published_date": "2028-08-27",
+    "primary_topic": "ICT in Developing Communities",
+    "topics": [
+      "ICT in Developing Communities",
+      "Gender and Technology in Education",
+      "Educational Technology and Optimization"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18280415",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-08-27"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7127379152",
+    "title": "Holistic Development Of Personality: A Perspective Of Indian Pedagogy",
+    "published_date": "2028-08-12",
+    "primary_topic": "Educational Challenges and Innovations",
+    "topics": [
+      "Educational Challenges and Innovations",
+      "Global Education Systems and Policies",
+      "Indian History and Philosophy"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18468548",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-08-12"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7127371715",
+    "title": "Holistic Development Of Personality: A Perspective Of Indian Pedagogy",
+    "published_date": "2028-08-12",
+    "primary_topic": "Educational Challenges and Innovations",
+    "topics": [
+      "Educational Challenges and Innovations",
+      "Global Education Systems and Policies",
+      "Indian History and Philosophy"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18468549",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-08-12"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7133132222",
+    "title": "ADLP: A Post-Quantum Cryptographic Framework from Apollonian Sphere Packing and Hyperbolic Group Theory",
+    "published_date": "2028-03-01",
+    "primary_topic": "Cryptography and Residue Arithmetic",
+    "topics": [
+      "Cryptography and Residue Arithmetic",
+      "Cryptographic Implementations and Security",
+      "Coding theory and cryptography"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18826779",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-03-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7126060132",
+    "title": "Explicit Examples of Optimal PTE Solutions for Degree 4 and the Concept of Absolute Universal Optimal Construction",
+    "published_date": "2028-01-29",
+    "primary_topic": "Polynomial and algebraic computation",
+    "topics": [
+      "Polynomial and algebraic computation",
+      "Advanced Algebra and Logic",
+      "Advanced Topology and Set Theory"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18412714",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-29"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7125940856",
+    "title": "The Impossibility of Universal Ideal Construction to the Prouhet??arry??scott Problem",
+    "published_date": "2028-01-28",
+    "primary_topic": "Logic, programming, and type systems",
+    "topics": [
+      "Logic, programming, and type systems",
+      "Computability, Logic, AI Algorithms",
+      "Logic, Reasoning, and Knowledge"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18403160",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-28"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7125952599",
+    "title": "The Impossibility of Universal Ideal Construction to the Prouhet??arry??scott Problem",
+    "published_date": "2028-01-28",
+    "primary_topic": "Logic, programming, and type systems",
+    "topics": [
+      "Logic, programming, and type systems",
+      "Computability, Logic, AI Algorithms",
+      "Logic, Reasoning, and Knowledge"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18403161",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-28"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7126055328",
+    "title": "The Impossibility of Universal Ideal Construction to the Prouhet??arry??scott Problem",
+    "published_date": "2028-01-28",
+    "primary_topic": "Logic, programming, and type systems",
+    "topics": [
+      "Logic, programming, and type systems",
+      "Computability, Logic, AI Algorithms",
+      "Logic, Reasoning, and Knowledge"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.18411921",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-28"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7126045467",
+    "title": "HoloBine: Connecting Augmented Reality Headset and Mobile Devices in Augmented Reality Systems",
+    "published_date": "2028-01-01",
+    "primary_topic": "Augmented Reality Applications",
+    "topics": [
+      "Augmented Reality Applications",
+      "Cloud Computing and Remote Desktop Technologies",
+      "Interactive and Immersive Displays"
+    ],
+    "doi": "https://doi.org/10.24377/ljmu.t.00027965",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7128031672",
+    "title": "Human-Based Machine Translation Evaluation: A Multi-Dimensional Approach to Sentiment, Emotion, and Argumentation Preservation in Chinese-English Translation",
+    "published_date": "2028-01-01",
+    "primary_topic": "Sentiment Analysis and Opinion Mining",
+    "topics": [
+      "Sentiment Analysis and Opinion Mining",
+      "Topic Modeling",
+      "Computational and Text Analysis Methods"
+    ],
+    "doi": "https://doi.org/10.17638/03195263",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7128502054",
+    "title": "Virtual Knapping (and Refitting) with Neural Networks: Proofs of Concept",
+    "published_date": "2028-01-01",
+    "primary_topic": "Neural Networks and Applications",
+    "topics": [
+      "Neural Networks and Applications",
+      "Image Processing and 3D Reconstruction",
+      "Stochastic Gradient Optimization Techniques"
+    ],
+    "doi": "https://doi.org/10.13140/rg.2.2.12669.63201",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7154712957",
+    "title": "Integrated circuits for photonic computing and sensing",
+    "published_date": "2028-01-01",
+    "primary_topic": "Neural Networks and Reservoir Computing",
+    "topics": [
+      "Neural Networks and Reservoir Computing",
+      "Photonic and Optical Devices",
+      "Photonic Crystals and Applications"
+    ],
+    "doi": "https://doi.org/10.14288/1.0451978",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7154759180",
+    "title": "Deep learning image analysis of donor red blood cells to predict deformability and transfusion efficacy",
+    "published_date": "2028-01-01",
+    "primary_topic": "Digital Imaging for Blood Diseases",
+    "topics": [
+      "Digital Imaging for Blood Diseases",
+      "Blood properties and coagulation",
+      "Blood groups and transfusion"
+    ],
+    "doi": "https://doi.org/10.14288/1.0451932",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W7119928501",
+    "title": "Deep q-learning aided k-means clustering protocol for optimizing network lifetime in wireless sensor networks",
+    "published_date": "2028-01-01",
+    "primary_topic": "Energy Efficient Wireless Sensor Networks",
+    "topics": [
+      "Energy Efficient Wireless Sensor Networks",
+      "Advanced Data and IoT Technologies",
+      "Internet of Things and AI"
+    ],
+    "doi": "https://doi.org/10.14288/1.0451106",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2028-01-01"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4281660156",
+    "title": "Cabinet",
+    "published_date": "2027-06-03",
+    "primary_topic": "Educational Robotics and Engineering",
+    "topics": [
+      "Educational Robotics and Engineering",
+      "Diverse Scientific and Economic Studies",
+      "Human auditory perception and evaluation"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.6597321",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2027-06-03"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W4220754760",
+    "title": "Data for multiple trees",
+    "published_date": "2027-03-10",
+    "primary_topic": "Data Mining Algorithms and Applications",
+    "topics": [
+      "Data Mining Algorithms and Applications",
+      "Bayesian Modeling and Causal Inference"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.6342679",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2027-03-10"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  },
+  {
+    "id": "W2783566296",
+    "title": "Situaci??n del curr??culo del grado de Maestro de Educaci??n Infantil como base para las buenas pr??cticas con las TIC: el caso de la universidad ecuatoriana",
+    "published_date": "2027-01-21",
+    "primary_topic": "Educational Innovations and Technology",
+    "topics": [
+      "Educational Innovations and Technology",
+      "Digital literacy in education"
+    ],
+    "doi": "https://doi.org/10.5281/zenodo.14712620",
+    "status": "fetched",
+    "hard_reasons": [
+      "future publication_date: 2027-01-21"
+    ],
+    "warn_reasons": [
+      "authors is null"
+    ]
+  }
+]

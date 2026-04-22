@@ -87,6 +87,7 @@ function renderPaperPage(item: NonNullable<Item>, related: Related): string {
     <nav class="site-nav">
       <a href="/latest/">新着</a>
       <a href="/tags/">タグ</a>
+      <a href="/random" class="site-nav__random">ランダム</a>
     </nav>
   </div>
 </header>
@@ -105,6 +106,8 @@ function renderPaperPage(item: NonNullable<Item>, related: Related): string {
         <span>${esc(paper.published_date)}</span>
         ${paper.citation_count ? `<span>被引用 ${paper.citation_count}</span>` : ''}
         ${summary?.difficulty ? `<span class="difficulty-badge ${difficultyClass(summary.difficulty)}">${esc(summary.difficulty)}</span>` : ''}
+        ${paper.arxiv_id ? `<a href="https://arxiv.org/abs/${esc(paper.arxiv_id)}" target="_blank" rel="noopener" class="source-badge source-badge--arxiv">arXiv</a>` : ''}
+        ${paper.is_preprint && !paper.arxiv_id ? `<span class="source-badge source-badge--preprint">Preprint</span>` : ''}
       </div>
       ${tagsHtml ? `<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">${tagsHtml}</div>` : ''}
     </header>
@@ -145,9 +148,9 @@ function renderPaperPage(item: NonNullable<Item>, related: Related): string {
           ${authors.map((a) => esc(a.name)).join(', ')}${authors.length < (JSON.parse(paper.authors) as []).length ? ' ほか' : ''}
         </div>
         <div class="original-paper-links">
-          ${paper.openalex_url ? `<a href="${esc(paper.openalex_url)}" target="_blank" rel="noopener">OpenAlex</a>` : ''}
-          ${paper.pdf_url ? `<a href="${esc(paper.pdf_url)}" target="_blank" rel="noopener">PDF</a>` : ''}
+          ${paper.arxiv_id ? `<a href="https://arxiv.org/abs/${esc(paper.arxiv_id)}" target="_blank" rel="noopener">arXiv</a>` : ''}
           ${paper.doi ? `<a href="https://doi.org/${esc(paper.doi)}" target="_blank" rel="noopener">DOI</a>` : ''}
+          ${paper.openalex_url ? `<a href="${esc(paper.openalex_url)}" target="_blank" rel="noopener">OpenAlex</a>` : ''}
           ${paper.oa_url && paper.oa_url !== paper.pdf_url ? `<a href="${esc(paper.oa_url)}" target="_blank" rel="noopener">論文ページ</a>` : ''}
         </div>
       </div>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/</loc>
+  </url>
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/latest/</loc>
+  </url>
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/tags/</loc>
+  </url>
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/deep-residual-learning-for-image-recognition</loc>
+  </url>
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/attention-is-all-you-need</loc>
+  </url>
+</urlset>

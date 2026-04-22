@@ -32,6 +32,9 @@ export function paperCardHtml(item) {
   const title = titleJa || paper.title;
   const slug = paper.id.toLowerCase();
   const tagsHtml = (tags || []).slice(0, 4).map(tagHtml).join('');
+  const arxivBadge = paper.arxiv_id
+    ? `<a href="https://arxiv.org/abs/${escHtml(paper.arxiv_id)}" class="source-badge source-badge--arxiv" target="_blank" rel="noopener">arXiv</a>`
+    : '';
   return `
     <article class="paper-card">
       <div class="paper-card__title">
@@ -42,6 +45,7 @@ export function paperCardHtml(item) {
       <div class="paper-card__meta">
         <span>${paper.published_date?.slice(0, 7) || ''}</span>
         ${paper.citation_count ? `<span>被引用 ${paper.citation_count}</span>` : ''}
+        ${arxivBadge}
       </div>
       ${tagsHtml ? `<div class="paper-card__tags">${tagsHtml}</div>` : ''}
     </article>

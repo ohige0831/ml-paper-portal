@@ -12,6 +12,9 @@ export interface Paper {
   primary_topic: string | null;
   topics: string;               // JSON: string[]
   abstract: string | null;
+  source: string;
+  arxiv_id: string | null;
+  is_preprint: number;
   created_at: string;
 }
 
@@ -52,7 +55,9 @@ export type PaperStatus =
   | 'review_pending'
   | 'approved'
   | 'published'
-  | 'error';
+  | 'error'
+  | 'quarantined'
+  | 'withdrawn';
 
 // OpenAlex API response shape (partial)
 export interface OpenAlexWork {
