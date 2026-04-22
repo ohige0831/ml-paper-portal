@@ -1,17 +1,18 @@
 import { Hono } from 'hono';
 import type { Env, OpenAlexWork } from '../types';
-import { insertPaper, paperExists, insertFetchLog } from '../db/queries';
+import { insertPaper, paperExists, insertFetchLog, setPublishState } from '../db/queries';
 import {
   reconstructAbstract,
   extractPdfUrl,
   extractOaUrl,
   normalizeId,
 } from '../lib/openalex';
+import { validateWork } from '../lib/validate';
 
 export const ingestRouter = new Hono<{ Bindings: Env }>();
 
-// Bearer token auth for GitHub Actions
-ingestRouter.use('*', async (c, next) => {
+// Bearer token auth — scope to /api/ingest only to avoid intercepting /admin
+ingestRouter.use('/api/ingest', async (c, next) => {
   const auth = c.req.header('Authorization') ?? '';
   if (!c.env.INGEST_TOKEN || auth !== `Bearer ${c.env.INGEST_TOKEN}`) {
     return c.json({ error: 'Unauthorized' }, 401);
@@ -37,6 +38,10 @@ ingestRouter.post('/api/ingest', async (c) => {
 
   let inserted = 0;
   let skipped = 0;
+  let rejected = 0;
+  let quarantined = 0;
+
+  const today = new Date().toISOString().split('T')[0];
 
   for (const work of works) {
     const id = normalizeId(work.id);
@@ -44,6 +49,8 @@ ingestRouter.post('/api/ingest', async (c) => {
       skipped++;
       continue;
     }
+
+    const validation = validateWork(work, today);
 
     const abstract = work.abstract_inverted_index
       ? reconstructAbstract(work.abstract_inverted_index)
@@ -56,6 +63,13 @@ ingestRouter.post('/api/ingest', async (c) => {
     const topics = JSON.stringify(
       (work.topics ?? []).slice(0, 5).map((t) => t.display_name),
     );
+
+    if (!validation.ok && !validation.quarantine) {
+      // Hard reject: don't store
+      rejected++;
+      console.log(`[ingest] rejected ${id}: ${validation.reason}`);
+      continue;
+    }
 
     await insertPaper(c.env.DB, {
       id,
@@ -72,10 +86,16 @@ ingestRouter.post('/api/ingest', async (c) => {
       abstract,
     });
 
-    inserted++;
+    if (!validation.ok && validation.quarantine) {
+      await setPublishState(c.env.DB, id, 'quarantined', validation.reason);
+      quarantined++;
+      console.log(`[ingest] quarantined ${id}: ${validation.reason}`);
+    } else {
+      inserted++;
+    }
   }
 
   await insertFetchLog(c.env.DB, works.length, inserted, 'ok').catch(() => {});
-  console.log(`[ingest] ${inserted} inserted, ${skipped} skipped`);
-  return c.json({ inserted, skipped });
+  console.log(`[ingest] inserted=${inserted} skipped=${skipped} rejected=${rejected} quarantined=${quarantined}`);
+  return c.json({ inserted, skipped, rejected, quarantined });
 });

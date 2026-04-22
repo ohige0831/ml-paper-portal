@@ -31,11 +31,26 @@ export default {
 
 // Cron only runs summarize; fetch is handled by GitHub Actions
 async function runCronJob(env: Env): Promise<void> {
-  console.log('[cron] Starting summarize...');
+  const startedAt = new Date().toISOString();
+  console.log(`[cron] Starting summarize at ${startedAt}`);
   try {
     const model = env.OPENAI_MODEL ?? 'gpt-4o-mini';
     const sumResult = await runSummarize(env.DB, env.OPENAI_API_KEY, model, 10);
-    console.log(`[cron] Summarize done: ${sumResult.processed} processed, ${sumResult.errors} errors`);
+
+    // Count current pipeline states for visibility
+    const counts = await env.DB
+      .prepare(
+        `SELECT status, COUNT(*) as n FROM papers
+         GROUP BY status ORDER BY status`,
+      )
+      .all<{ status: string; n: number }>();
+    const statusLine = (counts.results ?? [])
+      .map((r) => `${r.status}=${r.n}`)
+      .join(' ');
+
+    console.log(
+      `[cron] summarized=${sumResult.processed} errors=${sumResult.errors} | ${statusLine}`,
+    );
   } catch (err) {
     console.error('[cron] Summarize error:', err);
   }

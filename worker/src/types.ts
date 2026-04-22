@@ -53,6 +53,9 @@ export interface PublishState {
   status: PaperStatus;
   error_message: string | null;
   updated_at: string;
+  withdrawn_at: string | null;
+  withdrawn_reason: string | null;
+  withdrawn_by: string | null;
 }
 
 export type PaperStatus =
@@ -61,7 +64,9 @@ export type PaperStatus =
   | 'review_pending'
   | 'approved'
   | 'published'
-  | 'error';
+  | 'error'
+  | 'quarantined'   // failed ML-relevance or metadata validation at ingest
+  | 'withdrawn';    // manually retracted from public view
 
 // OpenAlex API response shape (partial)
 export interface OpenAlexWork {
@@ -113,4 +118,8 @@ export interface PaperWithSummary {
   summary: Summary | null;
   tags: Tag[];
   status: PaperStatus;
+  error_message?: string | null;
+  withdrawn_at?: string | null;
+  withdrawn_reason?: string | null;
+  withdrawn_by?: string | null;
 }

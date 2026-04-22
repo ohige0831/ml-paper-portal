@@ -100,6 +100,39 @@ export async function setPublishState(
   `).bind(paperId, status, errorMessage).run();
 }
 
+export async function withdrawPaper(
+  db: D1Database,
+  paperId: string,
+  reason: string,
+  by: string = 'admin',
+): Promise<void> {
+  await db.prepare(`
+    INSERT INTO publish_states (paper_id, status, withdrawn_at, withdrawn_reason, withdrawn_by, updated_at)
+    VALUES (?, 'withdrawn', datetime('now'), ?, ?, datetime('now'))
+    ON CONFLICT(paper_id) DO UPDATE SET
+      status = 'withdrawn',
+      withdrawn_at = datetime('now'),
+      withdrawn_reason = excluded.withdrawn_reason,
+      withdrawn_by = excluded.withdrawn_by,
+      updated_at = datetime('now')
+  `).bind(paperId, reason, by).run();
+}
+
+export async function restorePaper(
+  db: D1Database,
+  paperId: string,
+): Promise<void> {
+  await db.prepare(`
+    UPDATE publish_states
+    SET status = 'review_pending',
+        withdrawn_at = NULL,
+        withdrawn_reason = NULL,
+        withdrawn_by = NULL,
+        updated_at = datetime('now')
+    WHERE paper_id = ?
+  `).bind(paperId).run();
+}
+
 export async function linkTags(db: D1Database, paperId: string, tagIds: number[]): Promise<void> {
   for (const tagId of tagIds) {
     await db.prepare(
@@ -114,19 +147,26 @@ export async function getPapersByStatus(
   limit = 50,
 ): Promise<PaperWithSummary[]> {
   const rows = await db.prepare(`
-    SELECT p.*, ps.status, ps.error_message
+    SELECT p.*, ps.status, ps.error_message,
+           ps.withdrawn_at, ps.withdrawn_reason, ps.withdrawn_by
     FROM papers p
     JOIN publish_states ps ON ps.paper_id = p.id
     WHERE ps.status = ?
     ORDER BY p.published_date DESC
     LIMIT ?
-  `).bind(status, limit).all<Paper & { status: PaperStatus; error_message: string | null }>();
+  `).bind(status, limit).all<Paper & {
+    status: PaperStatus;
+    error_message: string | null;
+    withdrawn_at: string | null;
+    withdrawn_reason: string | null;
+    withdrawn_by: string | null;
+  }>();
 
   return Promise.all(rows.results.map(async (row) => {
-    const { status: st, error_message, ...paper } = row;
+    const { status: st, error_message, withdrawn_at, withdrawn_reason, withdrawn_by, ...paper } = row;
     const summary = await getLatestSummary(db, paper.id);
     const tags = await getPaperTags(db, paper.id);
-    return { paper, summary, tags, status: st };
+    return { paper, summary, tags, status: st, error_message, withdrawn_at, withdrawn_reason, withdrawn_by };
   }));
 }
 

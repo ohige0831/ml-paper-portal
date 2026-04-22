@@ -1,12 +1,13 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import type { OpenAlexWork } from '../types';
-import { insertPaper, paperExists, insertFetchLog } from '../db/queries';
+import { insertPaper, paperExists, insertFetchLog, setPublishState } from '../db/queries';
 import {
   reconstructAbstract,
   extractPdfUrl,
   extractOaUrl,
   normalizeId,
 } from '../lib/openalex';
+import { validateWork } from '../lib/validate';
 
 const OPENALEX_BASE = 'https://api.openalex.org';
 const ML_CONCEPT_ID = 'C41008148';
@@ -61,9 +62,13 @@ async function fetchPopularWorks(): Promise<OpenAlexWork[]> {
   return fetchWorks(params);
 }
 
-export async function runFetch(db: D1Database): Promise<{ fetched: number; newCount: number }> {
+export async function runFetch(
+  db: D1Database,
+): Promise<{ fetched: number; newCount: number; rejected: number; quarantined: number }> {
   let fetched = 0;
   let newCount = 0;
+  let rejected = 0;
+  let quarantined = 0;
 
   try {
     // Sequential to respect OpenAlex rate limits (polite pool: 10 req/s)
@@ -82,11 +87,49 @@ export async function runFetch(db: D1Database): Promise<{ fetched: number; newCo
     }
 
     fetched = allWorks.length;
+    const today = new Date().toISOString().split('T')[0];
 
     for (const work of allWorks) {
       const id = normalizeId(work.id);
 
       if (await paperExists(db, id)) continue;
+
+      const validation = validateWork(work, today);
+      if (!validation.ok) {
+        if (validation.quarantine) {
+          // Save with quarantined status so admin can review
+          const abstract = work.abstract_inverted_index
+            ? reconstructAbstract(work.abstract_inverted_index)
+            : null;
+          const authors = JSON.stringify(
+            work.authorships.slice(0, 10).map((a) => ({ name: a.author.display_name })),
+          );
+          const topics = JSON.stringify(
+            (work.topics ?? []).slice(0, 5).map((t) => t.display_name),
+          );
+          await insertPaper(db, {
+            id,
+            doi: work.doi,
+            title: work.title,
+            authors,
+            published_date: work.publication_date,
+            citation_count: work.cited_by_count,
+            oa_url: extractOaUrl(work),
+            pdf_url: extractPdfUrl(work),
+            openalex_url: work.id,
+            primary_topic: work.primary_topic?.display_name ?? null,
+            topics,
+            abstract,
+          });
+          await setPublishState(db, id, 'quarantined', validation.reason);
+          quarantined++;
+          console.log(`[fetch] quarantined ${id}: ${validation.reason}`);
+        } else {
+          rejected++;
+          console.log(`[fetch] rejected ${id}: ${validation.reason}`);
+        }
+        continue;
+      }
 
       const abstract = work.abstract_inverted_index
         ? reconstructAbstract(work.abstract_inverted_index)
@@ -119,7 +162,8 @@ export async function runFetch(db: D1Database): Promise<{ fetched: number; newCo
     }
 
     await insertFetchLog(db, fetched, newCount, 'ok');
-    return { fetched, newCount };
+    console.log(`[fetch] fetched=${fetched} new=${newCount} rejected=${rejected} quarantined=${quarantined}`);
+    return { fetched, newCount, rejected, quarantined };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await insertFetchLog(db, fetched, newCount, 'error', message).catch(() => {});

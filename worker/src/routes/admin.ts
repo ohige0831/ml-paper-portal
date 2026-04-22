@@ -4,6 +4,8 @@ import {
   getPapersByStatus,
   getPaperById,
   setPublishState,
+  withdrawPaper,
+  restorePaper,
   getTagsWithCount,
 } from '../db/queries';
 import { runFetch } from '../cron/fetch';
@@ -27,7 +29,10 @@ function validateBasicAuth(header: string, password: string): boolean {
   if (!header.startsWith('Basic ')) return false;
   try {
     const decoded = atob(header.slice(6));
-    const [, pass] = decoded.split(':');
+    // Split only on the first colon — password may contain colons
+    const colonIndex = decoded.indexOf(':');
+    if (colonIndex === -1) return false;
+    const pass = decoded.slice(colonIndex + 1);
     return pass === password;
   } catch {
     return false;
@@ -68,6 +73,32 @@ adminRouter.post('/api/admin/papers/:id/reject', async (c) => {
   return c.json({ ok: true });
 });
 
+// POST /api/admin/papers/:id/withdraw
+adminRouter.post('/api/admin/papers/:id/withdraw', async (c) => {
+  const id = c.req.param('id');
+  let reason = 'admin withdrawal';
+  try {
+    const body = await c.req.json<{ reason?: string }>();
+    if (body?.reason) reason = body.reason;
+  } catch { /* reason stays default */ }
+  await withdrawPaper(c.env.DB, id, reason, 'admin');
+  return c.json({ ok: true });
+});
+
+// POST /api/admin/papers/:id/restore
+adminRouter.post('/api/admin/papers/:id/restore', async (c) => {
+  const id = c.req.param('id');
+  await restorePaper(c.env.DB, id);
+  return c.json({ ok: true });
+});
+
+// POST /api/admin/papers/:id/quarantine-approve  (rescue a quarantined paper)
+adminRouter.post('/api/admin/papers/:id/quarantine-approve', async (c) => {
+  const id = c.req.param('id');
+  await setPublishState(c.env.DB, id, 'fetched');
+  return c.json({ ok: true });
+});
+
 // POST /api/admin/trigger/fetch
 adminRouter.post('/api/trigger/fetch', async (c) => {
   const result = await runFetch(c.env.DB);
@@ -102,6 +133,10 @@ function serializePaper(p: PaperWithSummary) {
           keywords: JSON.parse(p.summary.keywords),
         }
       : null,
+    error_message: p.error_message ?? null,
+    withdrawn_at: p.withdrawn_at ?? null,
+    withdrawn_reason: p.withdrawn_reason ?? null,
+    withdrawn_by: p.withdrawn_by ?? null,
   };
 }
 
@@ -137,6 +172,8 @@ function buildAdminHtml(siteUrl: string): string {
   .status-approved { background: #dcfce7; color: #166534; }
   .status-published { background: #d1fae5; color: #065f46; }
   .status-error { background: #fee2e2; color: #991b1b; }
+  .status-quarantined { background: #fde68a; color: #78350f; }
+  .status-withdrawn { background: #e5e7eb; color: #4b5563; }
   .paper-list { display: flex; flex-direction: column; gap: 12px; }
   .paper-card { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; }
   .paper-card:hover { border-color: #2563eb; }
@@ -181,6 +218,8 @@ function buildAdminHtml(siteUrl: string): string {
       <option value="fetched">取得済み</option>
       <option value="summarized">要約済み</option>
       <option value="published">公開済み</option>
+      <option value="quarantined">検疫中</option>
+      <option value="withdrawn">取り下げ済み</option>
       <option value="error">エラー</option>
     </select>
     <button class="btn btn-outline" onclick="loadPapers()">更新</button>
@@ -297,7 +336,19 @@ function renderDetail(p) {
         <button class="btn btn-success" onclick="approve('\${paper.id}')">承認して公開</button>
         <button class="btn btn-danger" onclick="reject('\${paper.id}')">差し戻し</button>
       \` : ''}
-      \${status === 'published' ? '<span style="color:#16a34a;font-size:14px;">✓ 公開済み</span>' : ''}
+      \${status === 'published' ? \`
+        <span style="color:#16a34a;font-size:14px;">✓ 公開済み</span>
+        <button class="btn btn-danger" onclick="withdraw('\${paper.id}')">公開取り下げ</button>
+      \` : ''}
+      \${status === 'quarantined' ? \`
+        <div class="msg" style="background:#fde68a;color:#78350f;margin:0;">検疫理由: \${escHtml(p.error_message || '')}</div>
+        <button class="btn btn-success" onclick="quarantineApprove('\${paper.id}')">救済（取得済みに戻す）</button>
+        <button class="btn btn-danger" onclick="withdraw('\${paper.id}')">完全取り下げ</button>
+      \` : ''}
+      \${status === 'withdrawn' ? \`
+        <div class="msg" style="background:#e5e7eb;color:#4b5563;margin:0;">取り下げ済み (\${escHtml(p.withdrawn_reason || '')})</div>
+        <button class="btn btn-outline" onclick="restore('\${paper.id}')">レビュー待ちに復元</button>
+      \` : ''}
       \${status === 'error' ? \`<div class="msg msg-err">\${escHtml(p.error_message || 'エラー')}</div>\` : ''}
     </div>
   \`;
@@ -315,6 +366,31 @@ async function reject(id) {
   try {
     await api('/api/admin/papers/' + id + '/reject', 'POST');
     showMsg('差し戻しました', true);
+    await loadPapers();
+  } catch(e) { showMsg('エラー: ' + e.message, false); }
+}
+
+async function withdraw(id) {
+  const reason = prompt('取り下げ理由を入力してください（省略可）:') ?? 'admin withdrawal';
+  try {
+    await api('/api/admin/papers/' + id + '/withdraw', 'POST', { reason });
+    showMsg('公開を取り下げました', true);
+    await loadPapers();
+  } catch(e) { showMsg('エラー: ' + e.message, false); }
+}
+
+async function restore(id) {
+  try {
+    await api('/api/admin/papers/' + id + '/restore', 'POST');
+    showMsg('レビュー待ちに復元しました', true);
+    await loadPapers();
+  } catch(e) { showMsg('エラー: ' + e.message, false); }
+}
+
+async function quarantineApprove(id) {
+  try {
+    await api('/api/admin/papers/' + id + '/quarantine-approve', 'POST');
+    showMsg('取得済みに移動しました（要約後に再レビューしてください）', true);
     await loadPapers();
   } catch(e) { showMsg('エラー: ' + e.message, false); }
 }

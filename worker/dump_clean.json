@@ -1,0 +1,504 @@
+﻿[
+  {
+    "results": [
+      {
+        "id": "W4226369673",
+        "title": "Hub genes in a pan-cancer co-expression network show potential for predicting drug responses",
+        "published_date": "2050-02-21",
+        "primary_topic": "Computational Drug Discovery Methods",
+        "topics": "[\"Computational Drug Discovery Methods\",\"Protein Degradation and Inhibitors\",\"Bioinformatics and Genomic Networks\"]",
+        "doi": "https://doi.org/10.5281/zenodo.2574643",
+        "authors": "[{\"name\":\"Francisco Azuaje\"},{\"name\":\"Tony Kaoma\"},{\"name\":\"Cﾃｩline Jeanty\"},{\"name\":\"Petr V. Nazarov\"},{\"name\":\"Arnaud Muller\"},{\"name\":\"Sang窶榛oon Kim\"},{\"name\":\"Gunnar Dittmar\"},{\"name\":\"Anna Golebiewska\"},{\"name\":\"Simone P. Niclou\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W4393614663",
+        "title": "data_farmer",
+        "published_date": "2036-02-29",
+        "primary_topic": "ICT in Developing Communities",
+        "topics": "[\"ICT in Developing Communities\",\"Smart Agriculture and AI\"]",
+        "doi": "https://doi.org/10.5281/zenodo.6327222",
+        "authors": "[{\"name\":\"Ahlam\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7128624139",
+        "title": "Combating Data and Target Shifts in Visual Tasks",
+        "published_date": "2031-01-01",
+        "primary_topic": "Domain Adaptation and Few-Shot Learning",
+        "topics": "[\"Domain Adaptation and Few-Shot Learning\",\"Generative Adversarial Networks and Image Synthesis\",\"Multimodal Machine Learning Applications\"]",
+        "doi": "https://doi.org/10.17638/03194353",
+        "authors": "[{\"name\":\"Zhaorui Tan\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7116362194",
+        "title": "MODELING HOSPITALITY AND TOURISM STRATEGIES",
+        "published_date": "2030-01-01",
+        "primary_topic": "AI in Service Interactions",
+        "topics": "[\"AI in Service Interactions\",\"Sharing Economy and Platforms\",\"Diverse Interdisciplinary Research Innovations\"]",
+        "doi": "https://doi.org/10.7273/000007504",
+        "authors": "[{\"name\":\"Di Zhu\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7128633535",
+        "title": "When Identity Sits on the Surface An Investigation into the Effectiveness of Surface pXRF for the Identification of Constantinian Copies in Romano-British Coin Hoards Volume I",
+        "published_date": "2030-01-01",
+        "primary_topic": "Currency Recognition and Detection",
+        "topics": "[\"Currency Recognition and Detection\",\"Cultural Heritage Materials Analysis\",\"X-ray Spectroscopy and Fluorescence Analysis\"]",
+        "doi": "https://doi.org/10.17638/03194992",
+        "authors": "[{\"name\":\"N. Rubinstein\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7128510716",
+        "title": "Digital Currency, Information Frictions and Monetary Policy",
+        "published_date": "2029-01-01",
+        "primary_topic": "Blockchain Technology Applications and Security",
+        "topics": "[\"Blockchain Technology Applications and Security\",\"Economic theories and models\",\"European Monetary and Fiscal Policies\"]",
+        "doi": "https://doi.org/10.17638/03191396",
+        "authors": "[{\"name\":\"Boju Li\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7124539528",
+        "title": "What is the Potential of ICTs to Improve Education in Low and Middle Income Countries?",
+        "published_date": "2028-08-27",
+        "primary_topic": "ICT in Developing Communities",
+        "topics": "[\"ICT in Developing Communities\",\"Gender and Technology in Education\",\"Educational Technology and Optimization\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18280414",
+        "authors": "[{\"name\":\"Karen Onuma Mielke\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7124567928",
+        "title": "What is the Potential of ICTs to Improve Education in Low and Middle Income Countries?",
+        "published_date": "2028-08-27",
+        "primary_topic": "ICT in Developing Communities",
+        "topics": "[\"ICT in Developing Communities\",\"Gender and Technology in Education\",\"Educational Technology and Optimization\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18280415",
+        "authors": "[{\"name\":\"Karen Onuma Mielke\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7127379152",
+        "title": "Holistic Development Of Personality: A Perspective Of Indian Pedagogy",
+        "published_date": "2028-08-12",
+        "primary_topic": "Educational Challenges and Innovations",
+        "topics": "[\"Educational Challenges and Innovations\",\"Global Education Systems and Policies\",\"Indian History and Philosophy\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18468548",
+        "authors": "[{\"name\":\"Siharan Chakrabarty\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7127371715",
+        "title": "Holistic Development Of Personality: A Perspective Of Indian Pedagogy",
+        "published_date": "2028-08-12",
+        "primary_topic": "Educational Challenges and Innovations",
+        "topics": "[\"Educational Challenges and Innovations\",\"Global Education Systems and Policies\",\"Indian History and Philosophy\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18468549",
+        "authors": "[{\"name\":\"Siharan Chakrabarty\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7133132222",
+        "title": "ADLP: A Post-Quantum Cryptographic Framework from Apollonian Sphere Packing and Hyperbolic Group Theory",
+        "published_date": "2028-03-01",
+        "primary_topic": "Cryptography and Residue Arithmetic",
+        "topics": "[\"Cryptography and Residue Arithmetic\",\"Cryptographic Implementations and Security\",\"Coding theory and cryptography\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18826779",
+        "authors": "[{\"name\":\"J.J. Way\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7126060132",
+        "title": "Explicit Examples of Optimal PTE Solutions for Degree 4 and the Concept of Absolute Universal Optimal Construction",
+        "published_date": "2028-01-29",
+        "primary_topic": "Polynomial and algebraic computation",
+        "topics": "[\"Polynomial and algebraic computation\",\"Advanced Algebra and Logic\",\"Advanced Topology and Set Theory\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18412714",
+        "authors": "[{\"name\":\"Sasa Jovicevic\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7125940856",
+        "title": "The Impossibility of Universal Ideal Construction to the Prouhet窶典arry窶摘scott Problem",
+        "published_date": "2028-01-28",
+        "primary_topic": "Logic, programming, and type systems",
+        "topics": "[\"Logic, programming, and type systems\",\"Computability, Logic, AI Algorithms\",\"Logic, Reasoning, and Knowledge\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18403160",
+        "authors": "[{\"name\":\"Sasa Jovicevic\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7125952599",
+        "title": "The Impossibility of Universal Ideal Construction to the Prouhet窶典arry窶摘scott Problem",
+        "published_date": "2028-01-28",
+        "primary_topic": "Logic, programming, and type systems",
+        "topics": "[\"Logic, programming, and type systems\",\"Computability, Logic, AI Algorithms\",\"Logic, Reasoning, and Knowledge\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18403161",
+        "authors": "[{\"name\":\"Sasa Jovicevic\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7126055328",
+        "title": "The Impossibility of Universal Ideal Construction to the Prouhet窶典arry窶摘scott Problem",
+        "published_date": "2028-01-28",
+        "primary_topic": "Logic, programming, and type systems",
+        "topics": "[\"Logic, programming, and type systems\",\"Computability, Logic, AI Algorithms\",\"Logic, Reasoning, and Knowledge\"]",
+        "doi": "https://doi.org/10.5281/zenodo.18411921",
+        "authors": "[{\"name\":\"Sasa Jovicevic\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7126045467",
+        "title": "HoloBine: Connecting Augmented Reality Headset and Mobile Devices in Augmented Reality Systems",
+        "published_date": "2028-01-01",
+        "primary_topic": "Augmented Reality Applications",
+        "topics": "[\"Augmented Reality Applications\",\"Cloud Computing and Remote Desktop Technologies\",\"Interactive and Immersive Displays\"]",
+        "doi": "https://doi.org/10.24377/ljmu.t.00027965",
+        "authors": "[{\"name\":\"K McNally\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7128031672",
+        "title": "Human-Based Machine Translation Evaluation: A Multi-Dimensional Approach to Sentiment, Emotion, and Argumentation Preservation in Chinese-English Translation",
+        "published_date": "2028-01-01",
+        "primary_topic": "Sentiment Analysis and Opinion Mining",
+        "topics": "[\"Sentiment Analysis and Opinion Mining\",\"Topic Modeling\",\"Computational and Text Analysis Methods\"]",
+        "doi": "https://doi.org/10.17638/03195263",
+        "authors": "[{\"name\":\"Jingshi Zhou\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7128502054",
+        "title": "Virtual Knapping (and Refitting) with Neural Networks: Proofs of Concept",
+        "published_date": "2028-01-01",
+        "primary_topic": "Neural Networks and Applications",
+        "topics": "[\"Neural Networks and Applications\",\"Image Processing and 3D Reconstruction\",\"Stochastic Gradient Optimization Techniques\"]",
+        "doi": "https://doi.org/10.13140/rg.2.2.12669.63201",
+        "authors": "[{\"name\":\"F. Jordy Orellana\"},{\"name\":\"Jonathan Scott Reeves\"},{\"name\":\"Shannon P. Mcpherron\"},{\"name\":\"Claudio Tennie\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7154712957",
+        "title": "Integrated circuits for photonic computing and sensing",
+        "published_date": "2028-01-01",
+        "primary_topic": "Neural Networks and Reservoir Computing",
+        "topics": "[\"Neural Networks and Reservoir Computing\",\"Photonic and Optical Devices\",\"Photonic Crystals and Applications\"]",
+        "doi": "https://doi.org/10.14288/1.0451978",
+        "authors": "[{\"name\":\"Mohammed Ali Mohammed Al-Qadasi\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7154759180",
+        "title": "Deep learning image analysis of donor red blood cells to predict deformability and transfusion efficacy",
+        "published_date": "2028-01-01",
+        "primary_topic": "Digital Imaging for Blood Diseases",
+        "topics": "[\"Digital Imaging for Blood Diseases\",\"Blood properties and coagulation\",\"Blood groups and transfusion\"]",
+        "doi": "https://doi.org/10.14288/1.0451932",
+        "authors": "[{\"name\":\"Erik Lamoureux\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W7119928501",
+        "title": "Deep q-learning aided k-means clustering protocol for optimizing network lifetime in wireless sensor networks",
+        "published_date": "2028-01-01",
+        "primary_topic": "Energy Efficient Wireless Sensor Networks",
+        "topics": "[\"Energy Efficient Wireless Sensor Networks\",\"Advanced Data and IoT Technologies\",\"Internet of Things and AI\"]",
+        "doi": "https://doi.org/10.14288/1.0451106",
+        "authors": "[{\"name\":\"Flynn Dowey\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W4281660156",
+        "title": "Cabinet",
+        "published_date": "2027-06-03",
+        "primary_topic": "Educational Robotics and Engineering",
+        "topics": "[\"Educational Robotics and Engineering\",\"Diverse Scientific and Economic Studies\",\"Human auditory perception and evaluation\"]",
+        "doi": "https://doi.org/10.5281/zenodo.6597321",
+        "authors": "[{\"name\":\"Mihail Ivanovich Izmailov\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W4220754760",
+        "title": "Data for multiple trees",
+        "published_date": "2027-03-10",
+        "primary_topic": "Data Mining Algorithms and Applications",
+        "topics": "[\"Data Mining Algorithms and Applications\",\"Bayesian Modeling and Causal Inference\"]",
+        "doi": "https://doi.org/10.5281/zenodo.6342679",
+        "authors": "[{\"name\":\"Xiaoqian Li\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W2783566296",
+        "title": "Situaciﾃｳn del currﾃｭculo del grado de Maestro de Educaciﾃｳn Infantil como base para las buenas prﾃ｡cticas con las TIC: el caso de la universidad ecuatoriana",
+        "published_date": "2027-01-21",
+        "primary_topic": "Educational Innovations and Technology",
+        "topics": "[\"Educational Innovations and Technology\",\"Digital literacy in education\"]",
+        "doi": "https://doi.org/10.5281/zenodo.14712620",
+        "authors": "[{\"name\":\"Santiago Alonso-Garcﾃｭa\"},{\"name\":\"Juan Jesﾃｺs Gutiﾃｩrrez Castillo\"},{\"name\":\"Verﾃｳnica Juﾃ｡rez Ramos\"},{\"name\":\"Javier Contreras Garcﾃｭa\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W1531368347",
+        "title": "Proceedings of the 56th Annual ACM Symposium on Theory of Computing",
+        "published_date": "2024-06-10",
+        "primary_topic": "Computability, Logic, AI Algorithms",
+        "topics": "[\"Computability, Logic, AI Algorithms\"]",
+        "doi": "https://doi.org/10.1145/3618260",
+        "authors": "[]",
+        "status": "fetched"
+      },
+      {
+        "id": "W4404046121",
+        "title": "The PRIDE database at 20 years: 2025 update",
+        "published_date": "2024-11-04",
+        "primary_topic": "Research Data Management Practices",
+        "topics": "[\"Research Data Management Practices\",\"Scientific Computing and Data Management\",\"Genetics, Bioinformatics, and Biomedical Research\"]",
+        "doi": "https://doi.org/10.1093/nar/gkae1011",
+        "authors": "[{\"name\":\"Yasset Pﾃｩrez窶審iverol\"},{\"name\":\"Chakradhar Bandla\"},{\"name\":\"Deepti J Kundu\"},{\"name\":\"Selvakumar Kamatchinathan\"},{\"name\":\"Jingwen Bai\"},{\"name\":\"Suresh Hewapathirana\"},{\"name\":\"Nithu Sara John\"},{\"name\":\"Ananth Prakash\"},{\"name\":\"Mathias Walzer\"},{\"name\":\"Shengbo Wang\"}]",
+        "status": "fetched"
+      },
+      {
+        "id": "W2949650786",
+        "title": "Deep Residual Learning for Image Recognition",
+        "published_date": "2015-12-10",
+        "primary_topic": "Advanced Neural Network Applications",
+        "topics": "[\"Advanced Neural Network Applications\",\"Domain Adaptation and Few-Shot Learning\",\"Advanced Image and Video Retrieval Techniques\"]",
+        "doi": "10.48550/arxiv.1512.03385",
+        "authors": "[{\"name\":\"Kaiming He\"},{\"name\":\"Xiangyu Zhang\"},{\"name\":\"Shaoqing Ren\"},{\"name\":\"Jian Sun\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W2626778328",
+        "title": "Attention Is All You Need",
+        "published_date": "2025-08-23",
+        "primary_topic": "Natural Language Processing Techniques",
+        "topics": "[\"Natural Language Processing Techniques\",\"Topic Modeling\",\"Multimodal Machine Learning Applications\"]",
+        "doi": "10.65215/2q58a426",
+        "authors": "[{\"name\":\"Ashish Vaswani\"},{\"name\":\"Noam Shazeer\"},{\"name\":\"Niki Parmar\"},{\"name\":\"Jakob Uszkoreit\"},{\"name\":\"Llion Jones\"},{\"name\":\"Aidan N. Gomez\"},{\"name\":\"ﾅ「kasz Kaiser\"},{\"name\":\"Illia Polosukhin\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W2964015378",
+        "title": "Detecting Functionality-Specific Vulnerabilities via Retrieving Individual Functionality-Equivalent APIs in Open-Source Repositories",
+        "published_date": "2025-01-01",
+        "primary_topic": "Advanced Graph Neural Networks",
+        "topics": "[\"Advanced Graph Neural Networks\",\"Domain Adaptation and Few-Shot Learning\",\"Machine Learning and ELM\"]",
+        "doi": "https://doi.org/10.4230/lipics.ecoop.2025.6",
+        "authors": "[{\"name\":\"Chen, Tianyu\"},{\"name\":\"Wang, Zeyu\"},{\"name\":\"Li, Lin\"},{\"name\":\"Li, Ding\"},{\"name\":\"Li, Zongyang\"},{\"name\":\"Chang, Xiaoning\"},{\"name\":\"Bian, Pan\"},{\"name\":\"Liang, Guangtai\"},{\"name\":\"Wang, Qianxiang\"},{\"name\":\"Xie, Tao\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4293846201",
+        "title": "On Assessing ML Model Robustness: A Methodological Framework (Academic Track)",
+        "published_date": "2025-01-01",
+        "primary_topic": "Adversarial Robustness in Machine Learning",
+        "topics": "[\"Adversarial Robustness in Machine Learning\",\"Anomaly Detection Techniques and Applications\"]",
+        "doi": "https://doi.org/10.4230/oasics.saia.2024.1",
+        "authors": "[{\"name\":\"Awadid, Afef\"},{\"name\":\"Robert, Boris\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W2962711740",
+        "title": "Formal Semantics for Kolmogorov-Arnold Network Representations of Operational Games",
+        "published_date": "2025-04-13",
+        "primary_topic": "Advanced Graph Neural Networks",
+        "topics": "[\"Advanced Graph Neural Networks\",\"Bayesian Modeling and Causal Inference\"]",
+        "doi": "https://doi.org/10.5281/zenodo.15206559",
+        "authors": "[{\"name\":\"Zhukov, Georgy Alexandrovich\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W3027879771",
+        "title": "Contextual Personal Intelligence: A New Paradigm for AI That Evolves With You",
+        "published_date": "2025-07-08",
+        "primary_topic": "Topic Modeling",
+        "topics": "[\"Topic Modeling\",\"Natural Language Processing Techniques\",\"Multimodal Machine Learning Applications\"]",
+        "doi": "https://doi.org/10.5281/zenodo.15843863",
+        "authors": "[{\"name\":\"Patrick Lewis\"},{\"name\":\"Ethan Perez\"},{\"name\":\"Aleksandara Piktus\"},{\"name\":\"Fabio Petroni\"},{\"name\":\"Vladimir Karpukhin\"},{\"name\":\"Naman Goyal\"},{\"name\":\"Heinrich Kﾃｼttler\"},{\"name\":\"Mike Lewis\"},{\"name\":\"Wen-tau Yih\"},{\"name\":\"Tim Rocktﾃ､schel\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4311415873",
+        "title": "Fast Kd-Trees for the Kullback-Leibler Divergence and Other Decomposable Bregman Divergences",
+        "published_date": "2025-01-01",
+        "primary_topic": "Gaussian Processes and Bayesian Inference",
+        "topics": "[\"Gaussian Processes and Bayesian Inference\",\"Bayesian Methods and Mixture Models\",\"Domain Adaptation and Few-Shot Learning\"]",
+        "doi": "https://doi.org/10.4230/lipics.wads.2025.45",
+        "authors": "[{\"name\":\"Pham, Tuyen\"},{\"name\":\"Wagner, Hubert\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4322614756",
+        "title": "Identifying Resilient Communities in Road Networks: A Path-Based Embedding Approach",
+        "published_date": "2025-01-01",
+        "primary_topic": "Advanced Graph Neural Networks",
+        "topics": "[\"Advanced Graph Neural Networks\",\"Bioinformatics and Genomic Networks\",\"Complex Network Analysis Techniques\"]",
+        "doi": "https://doi.org/10.4230/lipics.giscience.2025.9",
+        "authors": "[{\"name\":\"Wagner, Christopher\"},{\"name\":\"Dodge, Somayeh\"},{\"name\":\"Alizadeh, Danial\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4394666973",
+        "title": "Neuromodulatory Control Networks (NCNs): A Biologically Inspired Architecture for Dynamic LLM Processing",
+        "published_date": "2025-04-25",
+        "primary_topic": "Neural Networks and Applications",
+        "topics": "[\"Neural Networks and Applications\"]",
+        "doi": "https://doi.org/10.5281/zenodo.17621804",
+        "authors": "[{\"name\":\"Morgan, Michael Christian\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4396831394",
+        "title": "Revolutionizing Supply Chain Management: Real-time Data Processing and Concurrency",
+        "published_date": "2024-05-11",
+        "primary_topic": "Real-Time Systems Scheduling",
+        "topics": "[\"Real-Time Systems Scheduling\",\"Simulation Techniques and Applications\",\"Scheduling and Optimization Algorithms\"]",
+        "doi": "https://doi.org/10.38124/ijisrt/ijisrt24may207",
+        "authors": "[{\"name\":\"Suwarna Shukla\"},{\"name\":\"Prabhneet Singh\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W2951534261",
+        "title": "Analysis of Points of Interests Recommended for Leisure Walk Descriptions",
+        "published_date": "2024-10-10",
+        "primary_topic": "Topic Modeling",
+        "topics": "[\"Topic Modeling\",\"Natural Language Processing Techniques\",\"Multimodal Machine Learning Applications\"]",
+        "doi": "https://doi.org/10.4230/lipics.giscience.2025.5",
+        "authors": "[{\"name\":\"Payal Bajaj\"},{\"name\":\"Zelch, Ines\"},{\"name\":\"Potthast, Martin\"},{\"name\":\"Hagen, Matthias\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4404534210",
+        "title": "A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions",
+        "published_date": "2024-11-20",
+        "primary_topic": "Topic Modeling",
+        "topics": "[\"Topic Modeling\",\"Ferroelectric and Negative Capacitance Devices\",\"Text Readability and Simplification\"]",
+        "doi": "https://doi.org/10.1145/3703155",
+        "authors": "[{\"name\":\"Lei Huang\"},{\"name\":\"Weijiang Yu\"},{\"name\":\"Weitao Ma\"},{\"name\":\"Weihong Zhong\"},{\"name\":\"Zhangyin Feng\"},{\"name\":\"Haotian Wang\"},{\"name\":\"Qianglong Chen\"},{\"name\":\"Weihua Peng\"},{\"name\":\"Xiaocheng Feng\"},{\"name\":\"Bing Qin\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4405670661",
+        "title": "MEGA12: Molecular Evolutionary Genetic Analysis Version 12 for Adaptive and Green Computing",
+        "published_date": "2024-12-01",
+        "primary_topic": "Evolutionary Algorithms and Applications",
+        "topics": "[\"Evolutionary Algorithms and Applications\"]",
+        "doi": "https://doi.org/10.1093/molbev/msae263",
+        "authors": "[{\"name\":\"Sudhir Kumar\"},{\"name\":\"Glen Stecher\"},{\"name\":\"Michael Suleski\"},{\"name\":\"Maxwell Sanderford\"},{\"name\":\"Sudip Sharma\"},{\"name\":\"Koichiro Tamura\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4395010444",
+        "title": "ProTox 3.0: a webserver for the prediction of toxicity of chemicals",
+        "published_date": "2024-04-22",
+        "primary_topic": "Computational Drug Discovery Methods",
+        "topics": "[\"Computational Drug Discovery Methods\",\"Machine Learning in Materials Science\",\"Cholinesterase and Neurodegenerative Diseases\"]",
+        "doi": "https://doi.org/10.1093/nar/gkae303",
+        "authors": "[{\"name\":\"Priyanka Banerjee\"},{\"name\":\"Emanuel Kemmler\"},{\"name\":\"Mathias Dunkel\"},{\"name\":\"Robert Preiﾃ殤er\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4399083018",
+        "title": "Intelligent Clinical Documentation: Harnessing Generative AI for Patient-Centric Clinical Note Generation",
+        "published_date": "2024-05-28",
+        "primary_topic": "Machine Learning in Healthcare",
+        "topics": "[\"Machine Learning in Healthcare\",\"Electronic Health Records Systems\",\"Artificial Intelligence in Healthcare and Education\"]",
+        "doi": "https://doi.org/10.38124/ijisrt/ijisrt24may1483",
+        "authors": "[{\"name\":\"Anjanava Biswas\"},{\"name\":\"Wrick Talukdar\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4399685394",
+        "title": "Advanced Modelling of Soil Organic Carbon Content in Coal Mining Areas Using Integrated Spectral Analysis: A Dengcao Coal Mine Case Study",
+        "published_date": "2024-06-14",
+        "primary_topic": "Geochemistry and Geologic Mapping",
+        "topics": "[\"Geochemistry and Geologic Mapping\",\"Environmental Quality and Pollution\",\"Remote-Sensing Image Classification\"]",
+        "doi": "https://doi.org/10.38124/ijisrt/ijisrt24may2382",
+        "authors": "[{\"name\":\"Gill Ammara\"},{\"name\":\"Xiaojun Nie\"},{\"name\":\"Chang Liu\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W2626610348",
+        "title": "Multiscale structural similarity for image quality assessment",
+        "published_date": "2025-01-01",
+        "primary_topic": "Image and Video Quality Assessment",
+        "topics": "[\"Image and Video Quality Assessment\",\"Advanced Image Fusion Techniques\",\"Image and Signal Denoising Methods\"]",
+        "doi": "https://doi.org/10.57702/c0fj14hf",
+        "authors": "[{\"name\":\"Zhou Wang\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4400881081",
+        "title": "TransUNet: Rethinking the U-Net architecture design for medical image segmentation through the lens of transformers",
+        "published_date": "2024-07-22",
+        "primary_topic": "Advanced Neural Network Applications",
+        "topics": "[\"Advanced Neural Network Applications\",\"COVID-19 diagnosis using AI\",\"Radiomics and Machine Learning in Medical Imaging\"]",
+        "doi": "https://doi.org/10.1016/j.media.2024.103280",
+        "authors": "[{\"name\":\"Jieneng Chen\"},{\"name\":\"Jieru Mei\"},{\"name\":\"Xianhang Li\"},{\"name\":\"Yongyi Lu\"},{\"name\":\"Qihang Yu\"},{\"name\":\"Qingyue Wei\"},{\"name\":\"Xiangde Luo\"},{\"name\":\"Yutong Xie\"},{\"name\":\"Ehsan Adeli\"},{\"name\":\"Yan Wang\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4404511389",
+        "title": "PubChem 2025 update",
+        "published_date": "2024-11-18",
+        "primary_topic": "Computational Drug Discovery Methods",
+        "topics": "[\"Computational Drug Discovery Methods\",\"Biomedical Text Mining and Ontologies\",\"Bioinformatics and Genomic Networks\"]",
+        "doi": "https://doi.org/10.1093/nar/gkae1059",
+        "authors": "[{\"name\":\"Sunghwan Kim\"},{\"name\":\"Jie Chen\"},{\"name\":\"Tiejun Cheng\"},{\"name\":\"Asta Gindulytﾄ予"},{\"name\":\"Jia He\"},{\"name\":\"Siqian He\"},{\"name\":\"Qingliang Li\"},{\"name\":\"Benjamin A. Shoemaker\"},{\"name\":\"Paul Thiessen\"},{\"name\":\"Bo Yu\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4401917994",
+        "title": "Building Face Ageing Model Using Face Synthesis",
+        "published_date": "2024-08-27",
+        "primary_topic": "Face recognition and analysis",
+        "topics": "[\"Face recognition and analysis\"]",
+        "doi": "https://doi.org/10.38124/ijisrt/ijisrt24aug265",
+        "authors": "[{\"name\":\"Shraddha Mishra\"},{\"name\":\"Manvi Chahar\"},{\"name\":\"Shivani Jaswal\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4287689466",
+        "title": "From Prediction to Precision: Leveraging LLMs for Equitable and Data-Driven Writing Placement in Developmental Education",
+        "published_date": "2025-01-01",
+        "primary_topic": "Imbalanced Data Classification Techniques",
+        "topics": "[\"Imbalanced Data Classification Techniques\",\"Text and Document Classification Technologies\",\"Anomaly Detection Techniques and Applications\"]",
+        "doi": "https://doi.org/10.4230/oasics.slate.2025.1",
+        "authors": "[{\"name\":\"Da Corte, Miguel\"},{\"name\":\"E. Bagli\"}]",
+        "status": "published"
+      },
+      {
+        "id": "W4402061574",
+        "title": "Abstractive Text Summarization Using GAN",
+        "published_date": "2024-08-30",
+        "primary_topic": "Topic Modeling",
+        "topics": "[\"Topic Modeling\",\"Natural Language Processing Techniques\",\"Advanced Text Analysis Techniques\"]",
+        "doi": "https://doi.org/10.38124/ijisrt/ijisrt24aug334",
+        "authors": "[{\"name\":\"Tanushree Bharti\"},{\"name\":\"Satyam Kumar Sinha\"},{\"name\":\"Harshit Singhal\"},{\"name\":\"Rohit Saini\"},{\"name\":\"Dipesh Parihar\"}]",
+        "status": "published"
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "KIX",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.7916
+      },
+      "duration": 0.7916,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 253952,
+      "rows_read": 102,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]
