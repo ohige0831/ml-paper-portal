@@ -1,5 +1,8 @@
 import type { PagesFunction } from '@cloudflare/workers-types';
-import { getPublishedPapers, getPublishedSourceCounts } from '../../src/db/queries';
+import {
+  getPublishedPapers, getPublishedSourceCounts,
+  getTagBySlug, getPublishedPapersByTag, getTagSourceCounts,
+} from '../../src/db/queries';
 
 interface Env { DB: D1Database }
 
@@ -14,24 +17,40 @@ export const onRequestGet: PagesFunction<Env> = async (ctx) => {
   const source: Source = (VALID_SOURCES as readonly string[]).includes(rawSource)
     ? rawSource as Source
     : 'all';
+  const tagSlug = url.searchParams.get('tag');
 
   try {
+    if (tagSlug) {
+      const tag = await getTagBySlug(ctx.env.DB, tagSlug);
+      if (!tag) {
+        return Response.json({ error: 'Tag not found' }, { status: 404, headers: corsHeaders() });
+      }
+      const [papers, sourceCounts] = await Promise.all([
+        getPublishedPapersByTag(ctx.env.DB, tag.id, limit, offset, source),
+        getTagSourceCounts(ctx.env.DB, tag.id),
+      ]);
+      const total =
+        source === 'arxiv' ? sourceCounts.arxiv :
+        source === 'non-arxiv' ? sourceCounts.nonArxiv :
+        sourceCounts.all;
+      return Response.json({
+        total, limit, offset, source, sourceCounts,
+        tag: { id: tag.id, slug: tag.slug, name: tag.name, tier: tag.tier },
+        items: papers.map(serializePaper),
+      }, { headers: corsHeaders() });
+    }
+
     const [papers, sourceCounts] = await Promise.all([
       getPublishedPapers(ctx.env.DB, limit, offset, source),
       getPublishedSourceCounts(ctx.env.DB),
     ]);
-
     const total =
       source === 'arxiv' ? sourceCounts.arxiv :
       source === 'non-arxiv' ? sourceCounts.nonArxiv :
       sourceCounts.all;
 
     return Response.json({
-      total,
-      limit,
-      offset,
-      source,
-      sourceCounts,
+      total, limit, offset, source, sourceCounts,
       items: papers.map(serializePaper),
     }, { headers: corsHeaders() });
   } catch (err) {
