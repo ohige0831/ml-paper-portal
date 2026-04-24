@@ -117,7 +117,7 @@ function renderSourceFilter() {
   ];
   el.innerHTML = buttons.map(function(b) {
     const active = b.key === currentSource ? ' source-filter__btn--active' : '';
-    return '<button class="source-filter__btn' + active + '" onclick="setSource(\'' + b.key + '\')">' + escHtml(b.label) + ' (' + b.count + ')</button>';
+    return '<button class="source-filter__btn' + active + '" data-source="' + b.key + '" onclick="setSource(this.dataset.source)">' + escHtml(b.label) + ' (' + b.count + ')</button>';
   }).join('');
 }
 
