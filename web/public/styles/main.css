@@ -316,6 +316,41 @@ img { max-width: 100%; }
   border: 1px solid #c4b5fd;
 }
 
+/* Source filter segmented control */
+.source-filter {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.source-filter__btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  line-height: 1.5;
+}
+.source-filter__btn:hover {
+  border-color: #c7d2fe;
+  color: #374151;
+  background: #f5f7ff;
+}
+.source-filter__btn--active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.source-filter__btn--active:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
 /* Random nav button */
 .site-nav__random {
   background: #2563eb;

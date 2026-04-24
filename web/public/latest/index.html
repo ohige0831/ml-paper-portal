@@ -23,6 +23,7 @@
   <section class="section">
     <div class="container">
       <h1 class="section-title">新着論文</h1>
+      <div id="source-filter" class="source-filter"></div>
       <div id="paper-grid" class="paper-grid">
         <p class="loading">読み込み中...</p>
       </div>
@@ -42,15 +43,46 @@
 import { fetchJson, renderPaperGrid, escHtml } from '/js/app.js';
 
 const PAGE_SIZE = 20;
+const VALID_SOURCES = ['all', 'arxiv', 'non-arxiv'];
 let currentPage = 1;
+let currentSource = 'all';
+let sourceCounts = { all: 0, arxiv: 0, nonArxiv: 0 };
+
+function getSourceFromUrl() {
+  const s = new URLSearchParams(window.location.search).get('source') ?? 'all';
+  return VALID_SOURCES.includes(s) ? s : 'all';
+}
+
+function setSourceInUrl(source) {
+  const url = new URL(window.location.href);
+  if (source === 'all') { url.searchParams.delete('source'); }
+  else { url.searchParams.set('source', source); }
+  window.history.pushState({}, '', url.toString());
+}
+
+function renderSourceFilter() {
+  const el = document.getElementById('source-filter');
+  if (!el) return;
+  const buttons = [
+    { key: 'all',       label: 'All',       count: sourceCounts.all },
+    { key: 'arxiv',     label: 'arXiv',     count: sourceCounts.arxiv },
+    { key: 'non-arxiv', label: 'Non-arXiv', count: sourceCounts.nonArxiv },
+  ];
+  el.innerHTML = buttons.map(b => {
+    const active = b.key === currentSource ? ' source-filter__btn--active' : '';
+    return `<button class="source-filter__btn${active}" onclick="setSource('${b.key}')">${escHtml(b.label)} (${b.count})</button>`;
+  }).join('');
+}
 
 async function loadPage(page) {
   const offset = (page - 1) * PAGE_SIZE;
   document.getElementById('paper-grid').innerHTML = '<p class="loading">読み込み中...</p>';
   try {
-    const data = await fetchJson(`/api/papers?limit=${PAGE_SIZE}&offset=${offset}`);
+    const data = await fetchJson(`/api/papers?limit=${PAGE_SIZE}&offset=${offset}&source=${currentSource}`);
     const items = data.items || data;
     const total = data.total || items.length;
+    if (data.sourceCounts) sourceCounts = data.sourceCounts;
+    renderSourceFilter();
     renderPaperGrid('paper-grid', items);
     renderPagination(page, total);
     currentPage = page;
@@ -71,6 +103,21 @@ function renderPagination(page, total) {
 }
 
 window.goPage = (p) => { window.scrollTo(0,0); loadPage(p); };
+window.setSource = (source) => {
+  if (source === currentSource) return;
+  currentSource = source;
+  setSourceInUrl(source);
+  loadPage(1);
+};
+
+window.addEventListener('popstate', () => {
+  currentSource = getSourceFromUrl();
+  renderSourceFilter();
+  loadPage(1);
+});
+
+currentSource = getSourceFromUrl();
+renderSourceFilter();
 loadPage(1);
 </script>
 </body>

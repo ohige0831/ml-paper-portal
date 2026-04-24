@@ -1,24 +1,37 @@
 import type { PagesFunction } from '@cloudflare/workers-types';
-import { getPublishedPapers } from '../../src/db/queries';
+import { getPublishedPapers, getPublishedSourceCounts } from '../../src/db/queries';
 
 interface Env { DB: D1Database }
+
+const VALID_SOURCES = ['all', 'arxiv', 'non-arxiv'] as const;
+type Source = typeof VALID_SOURCES[number];
 
 export const onRequestGet: PagesFunction<Env> = async (ctx) => {
   const url = new URL(ctx.request.url);
   const limit = Math.min(Number(url.searchParams.get('limit') ?? '20'), 50);
   const offset = Number(url.searchParams.get('offset') ?? '0');
+  const rawSource = url.searchParams.get('source') ?? 'all';
+  const source: Source = (VALID_SOURCES as readonly string[]).includes(rawSource)
+    ? rawSource as Source
+    : 'all';
 
   try {
-    const papers = await getPublishedPapers(ctx.env.DB, limit, offset);
-    // Get total count for pagination
-    const countRow = await ctx.env.DB.prepare(
-      "SELECT COUNT(*) as total FROM publish_states WHERE status = 'published'"
-    ).first<{ total: number }>();
+    const [papers, sourceCounts] = await Promise.all([
+      getPublishedPapers(ctx.env.DB, limit, offset, source),
+      getPublishedSourceCounts(ctx.env.DB),
+    ]);
+
+    const total =
+      source === 'arxiv' ? sourceCounts.arxiv :
+      source === 'non-arxiv' ? sourceCounts.nonArxiv :
+      sourceCounts.all;
 
     return Response.json({
-      total: countRow?.total ?? 0,
+      total,
       limit,
       offset,
+      source,
+      sourceCounts,
       items: papers.map(serializePaper),
     }, { headers: corsHeaders() });
   } catch (err) {

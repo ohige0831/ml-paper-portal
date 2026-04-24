@@ -159,12 +159,17 @@ export async function getPublishedPapers(
   db: D1Database,
   limit = 20,
   offset = 0,
+  source: 'all' | 'arxiv' | 'non-arxiv' = 'all',
 ): Promise<PaperWithSummary[]> {
+  const sourceFilter =
+    source === 'arxiv' ? "AND p.arxiv_id IS NOT NULL" :
+    source === 'non-arxiv' ? "AND p.arxiv_id IS NULL" : '';
+
   const rows = await db.prepare(`
     SELECT p.*, ps.status
     FROM papers p
     JOIN publish_states ps ON ps.paper_id = p.id
-    WHERE ps.status = 'published'
+    WHERE ps.status = 'published' ${sourceFilter}
     ORDER BY p.published_date DESC
     LIMIT ? OFFSET ?
   `).bind(limit, offset).all<Paper & { status: PaperStatus }>();
@@ -175,6 +180,22 @@ export async function getPublishedPapers(
     const tags = await getPaperTags(db, paper.id);
     return { paper, summary, tags, status };
   }));
+}
+
+export async function getPublishedSourceCounts(
+  db: D1Database,
+): Promise<{ all: number; arxiv: number; nonArxiv: number }> {
+  const allRow = await db.prepare(
+    "SELECT COUNT(*) as total FROM publish_states WHERE status = 'published'"
+  ).first<{ total: number }>();
+  const arxivRow = await db.prepare(`
+    SELECT COUNT(*) as total
+    FROM papers p JOIN publish_states ps ON ps.paper_id = p.id
+    WHERE ps.status = 'published' AND p.arxiv_id IS NOT NULL
+  `).first<{ total: number }>();
+  const all = allRow?.total ?? 0;
+  const arxiv = arxivRow?.total ?? 0;
+  return { all, arxiv, nonArxiv: all - arxiv };
 }
 
 export async function getPublishedPapersByTag(
