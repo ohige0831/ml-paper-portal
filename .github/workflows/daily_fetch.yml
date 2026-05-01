@@ -27,4 +27,5 @@ jobs:
         env:
           WORKER_URL: ${{ secrets.WORKER_URL }}
           INGEST_TOKEN: ${{ secrets.INGEST_TOKEN }}
-          OPENALEX_MAILTO: kagerou5100@gmail.com
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          OPENALEX_SLEEP_MS: '10000'

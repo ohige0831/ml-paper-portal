@@ -5,6 +5,7 @@
  * [Step 1: 2026-04-23〜] 8層50件/3回→3層20件/1回 に縮小
  * [Step 2: 2026-04-25〜] DB投入前 ML関連度スコアリング + 候補フィルタ追加
  * [Step 3: 2026-04-29〜] fetchOpenAlexラッパー + リクエスト上限 + 429即終了 + stats出力
+ * [Step 4: 2026-05-01〜] OPENALEX_API_KEY サポート・レイヤー間 sleep 延長・5xx リトライ追加
  *
  * 層配分 (計 20 件/回):
  *   new-hot   (last 90 days,  ≥10 citations):  8
@@ -18,15 +19,28 @@
  *   --dry-run または DRY_RUN=1 でスコア分布のみ確認してingestしない。
  *
  * Required env vars:
- *   WORKER_URL       e.g. https://ml-paper-portal-worker.*.workers.dev
- *   INGEST_TOKEN     Bearer token (matches wrangler secret INGEST_TOKEN)
- *   OPENALEX_MAILTO  e.g. kagerou5100@gmail.com
+ *   WORKER_URL         e.g. https://ml-paper-portal-worker.*.workers.dev
+ *   INGEST_TOKEN       Bearer token (matches wrangler secret INGEST_TOKEN)
+ * Optional:
+ *   OPENALEX_API_KEY   OpenAlex API key — preferred over mailto when set
+ *   OPENALEX_MAILTO    fallback polite-pool identifier (default: kagerou5100@gmail.com)
+ *   OPENALEX_SLEEP_MS  sleep between layer requests in ms (default: 7000)
  */
 
-const WORKER_URL    = process.env.WORKER_URL;
-const INGEST_TOKEN  = process.env.INGEST_TOKEN;
-const MAILTO        = process.env.OPENALEX_MAILTO ?? 'kagerou5100@gmail.com';
-const DRY_RUN       = process.argv.includes('--dry-run') || process.env.DRY_RUN === '1';
+const WORKER_URL       = process.env.WORKER_URL;
+const INGEST_TOKEN     = process.env.INGEST_TOKEN;
+const OPENALEX_API_KEY = process.env.OPENALEX_API_KEY ?? null;
+const MAILTO           = process.env.OPENALEX_MAILTO ?? 'kagerou5100@gmail.com';
+const OPENALEX_SLEEP_MS = Number(process.env.OPENALEX_SLEEP_MS ?? '7000');
+const DRY_RUN          = process.argv.includes('--dry-run') || process.env.DRY_RUN === '1';
+
+/**
+ * API key が設定されていれば { api_key } を、なければ { mailto } を返す。
+ * URLSearchParams の spread に使う。
+ */
+function buildAuthParam() {
+  return OPENALEX_API_KEY ? { api_key: OPENALEX_API_KEY } : { mailto: MAILTO };
+}
 
 if (!DRY_RUN && (!WORKER_URL || !INGEST_TOKEN)) {
   console.error('ERROR: WORKER_URL and INGEST_TOKEN must be set (or use --dry-run)');
@@ -195,8 +209,9 @@ class RequestLimitError extends Error {
 
 /**
  * OpenAlex API へのすべての fetch はこのラッパーを通す。
- * - リクエスト回数を記録・制限する
+ * - リクエスト回数を記録・制限する（リトライは回数に含まない）
  * - 429 を受けたら即 RateLimitError を throw する（リトライしない）
+ * - 5xx は指数バックオフで最大2リトライ（計3試行）してから返す
  * - 上限到達なら即 RequestLimitError を throw する
  */
 async function fetchOpenAlex(url) {
@@ -205,11 +220,25 @@ async function fetchOpenAlex(url) {
   }
   requestCount++;
   console.log(`  [OpenAlex] request #${requestCount}/${MAX_OPENALEX_REQUESTS_PER_RUN}`);
-  const res = await fetch(url);
-  if (res.status === 429) {
-    throw new RateLimitError();
+
+  const MAX_5XX_RETRIES = 2; // 原則1回 + 最大2リトライ = 計3試行
+  let lastRes = null;
+
+  for (let attempt = 0; attempt <= MAX_5XX_RETRIES; attempt++) {
+    if (attempt > 0) {
+      const waitMs = 1000 * (2 ** (attempt - 1)); // 1s → 2s
+      console.warn(`  [OpenAlex] ${lastRes.status} retry#${attempt}/${MAX_5XX_RETRIES}  wait=${waitMs / 1000}s`);
+      await new Promise((r) => setTimeout(r, waitMs));
+    }
+    lastRes = await fetch(url);
+    if (lastRes.status === 429) throw new RateLimitError(); // 429は即停止
+    if (lastRes.status < 500) return lastRes;               // 2xx/3xx/4xx → そのまま返す
+    // 5xx → 次のリトライへ
   }
-  return res;
+
+  // 全リトライ消耗 — 呼び出し元がステータスを見てスキップする
+  console.warn(`  [OpenAlex] ${lastRes.status} after ${MAX_5XX_RETRIES} retries — skipping layer`);
+  return lastRes;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -416,7 +445,7 @@ async function fetchLayer(layer) {
     filter: buildFilter(layer),
     sample: String(layer.n),
     select: SELECT_FIELDS,
-    mailto: MAILTO,
+    ...buildAuthParam(),
   });
   const url = `${OPENALEX_BASE}/works?${params.toString()}`;
   console.log(`  [${layer.label}] n=${layer.n}`);
@@ -457,9 +486,16 @@ async function ingest(works) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const mode = DRY_RUN ? 'DRY-RUN (scoring only, no ingest)' : 'auto (stratified sampling + ML filter)';
+  const mode     = DRY_RUN ? 'DRY-RUN (scoring only, no ingest)' : 'auto (stratified sampling + ML filter)';
+  const authMode = OPENALEX_API_KEY ? 'api_key' : 'mailto';
   console.log(`[fetch_openalex] mode=${mode}`);
-  console.log(`[fetch_openalex] FILTER_THRESHOLD=${FILTER_THRESHOLD}  MAX_REQUESTS=${MAX_OPENALEX_REQUESTS_PER_RUN}`);
+  console.log(
+    `[fetch_openalex]` +
+    `  auth=${authMode}` +
+    `  sleep=${OPENALEX_SLEEP_MS}ms` +
+    `  FILTER_THRESHOLD=${FILTER_THRESHOLD}` +
+    `  MAX_REQUESTS=${MAX_OPENALEX_REQUESTS_PER_RUN}`,
+  );
 
   const layers = buildLayers();
   console.log(`[fetch_openalex] ${layers.length} layers`);
@@ -473,7 +509,8 @@ async function main() {
 
   for (const layer of layers) {
     if (allWorks.length > 0) {
-      await new Promise((r) => setTimeout(r, 300));
+      console.log(`  [sleep] ${OPENALEX_SLEEP_MS}ms before next layer`);
+      await new Promise((r) => setTimeout(r, OPENALEX_SLEEP_MS));
     }
     let works;
     try {
