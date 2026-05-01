@@ -4,6 +4,7 @@
  *
  * [Step 1: 2026-04-23〜] 8層50件/3回→3層20件/1回 に縮小
  * [Step 2: 2026-04-25〜] DB投入前 ML関連度スコアリング + 候補フィルタ追加
+ * [Step 3: 2026-04-29〜] fetchOpenAlexラッパー + リクエスト上限 + 429即終了 + stats出力
  *
  * 層配分 (計 20 件/回):
  *   new-hot   (last 90 days,  ≥10 citations):  8
@@ -46,16 +47,21 @@ const SELECT_FIELDS = [
 
 /**
  * スコアがこの値未満の論文をingestから除外する。
- * 低いほど寛容（誤除外が減る）。高いほど厳格（ノイズが減る）。
- * 初期値 10 = strong keyword が topic に1個あれば通過。
- * （OpenAlex subfield=1702 フィルタが大半を絞っているため、ここは寛容に）
- * 除外が多すぎる場合は下げる、ノイズが多い場合は 15〜20 に上げる。
+ * 環境変数 FILTER_THRESHOLD で上書き可能: FILTER_THRESHOLD=25 node scripts/fetch_openalex.js
+ * デフォルト 20 = strong keyword が title にあれば単独で通過、topic のみでは不足。
+ * 除外が多すぎる場合は下げる、ノイズが多い場合は 25〜30 に上げる。
  */
-const FILTER_THRESHOLD = 10;
+const FILTER_THRESHOLD = Number(process.env.FILTER_THRESHOLD ?? '20');
 
 // 各フィールドでの加点（strong = 明確にML固有の語、broad = ML隣接語）
-const POINTS_STRONG = { title: 25, abstract: 15, topic: 10, keyword: 8 };
+const POINTS_STRONG = { title: 25, abstract: 20, topic: 10, keyword: 8 };
 const POINTS_BROAD  = { title: 10, abstract:  5, topic:  5, keyword: 3 };
+
+// abstract が欠損・極端に短い場合のペナルティ（OpenAlex で abstract が取れない ML 論文はあるが、
+// concept/topic だけで通過する非 ML 論文を弾く補助として使用する）
+const PENALTY_ABSTRACT_MISSING = -5;  // abstract が完全に欠損（0 chars）
+const PENALTY_ABSTRACT_SHORT   = -3;  // abstract が極端に短い（< ABSTRACT_SHORT_LEN chars）
+const ABSTRACT_SHORT_LEN       = 50;
 
 // OpenAlex concepts フィールドでの加点（1件 +5、上限 +15）
 const POINTS_CONCEPT     = 5;
@@ -65,13 +71,9 @@ const POINTS_CONCEPT_CAP = 15;
 const POINTS_CITE_HIGH = 5;  // cited_by_count >= 100
 const POINTS_CITE_MID  = 2;  // cited_by_count >= 20
 
-// abstract が短い・欠損している場合は減点しない。
-// ログに記録して判定参考にするが、スコアへの影響はなし。
-// （OpenAlex で abstract が取れない論文でも ML 論文であることは多い）
-
 /**
  * Strong ML キーワード: このリストにヒットすると title +25 / abstract +15 / topic +10 / keyword +8。
- * タイトルに1つあれば単独で FILTER_THRESHOLD=15 を超えて通過する。
+ * タイトルに1つあれば abstract ペナルティ込みでも FILTER_THRESHOLD=20 を超えて通過する。
  */
 const STRONG_ML_KEYWORDS = [
   'machine learning',
@@ -99,7 +101,6 @@ const STRONG_ML_KEYWORDS = [
   'generative adversarial',
   'diffusion model',
   'retrieval augmented generation',
-  'rag',
   'attention mechanism',
   'self-supervised',
   'contrastive learning',
@@ -157,7 +158,6 @@ const BROAD_ML_KEYWORDS = [
  * concepts はTopics移行で非推奨化されているが古い論文では有効。
  */
 const ML_CONCEPT_NAMES = [
-  'computer science',
   'artificial intelligence',
   'machine learning',
   'deep learning',
@@ -166,6 +166,51 @@ const ML_CONCEPT_NAMES = [
   'pattern recognition',
   'data mining',
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OpenAlex fetch wrapper — request accounting + rate-limit guard
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 1回の実行あたり OpenAlex API を叩ける最大回数。
+ * 上限に達したらそれ以降のレイヤーは取得せず終了する（TARGET追いかけ禁止）。
+ */
+const MAX_OPENALEX_REQUESTS_PER_RUN = 5;
+
+/** 実行中のリクエスト回数カウンタ */
+let requestCount = 0;
+
+class RateLimitError extends Error {
+  constructor() {
+    super('OpenAlex returned 429 Rate Limited');
+    this.name = 'RateLimitError';
+  }
+}
+class RequestLimitError extends Error {
+  constructor() {
+    super(`MAX_OPENALEX_REQUESTS_PER_RUN (${MAX_OPENALEX_REQUESTS_PER_RUN}) reached`);
+    this.name = 'RequestLimitError';
+  }
+}
+
+/**
+ * OpenAlex API へのすべての fetch はこのラッパーを通す。
+ * - リクエスト回数を記録・制限する
+ * - 429 を受けたら即 RateLimitError を throw する（リトライしない）
+ * - 上限到達なら即 RequestLimitError を throw する
+ */
+async function fetchOpenAlex(url) {
+  if (requestCount >= MAX_OPENALEX_REQUESTS_PER_RUN) {
+    throw new RequestLimitError();
+  }
+  requestCount++;
+  console.log(`  [OpenAlex] request #${requestCount}/${MAX_OPENALEX_REQUESTS_PER_RUN}`);
+  const res = await fetch(url);
+  if (res.status === 429) {
+    throw new RateLimitError();
+  }
+  return res;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date helpers
@@ -281,34 +326,69 @@ function scoreMlRelevance(work) {
   if (work.cited_by_count >= 100)      { score += POINTS_CITE_HIGH; reasons.push(`+${POINTS_CITE_HIGH} citations>=${100}`); }
   else if (work.cited_by_count >= 20)  { score += POINTS_CITE_MID;  reasons.push(`+${POINTS_CITE_MID} citations>=${20}`); }
 
-  // abstract が短い / 欠損している場合はスコアへの影響なし（ログに記録のみ）
-  if (abstract.length < 50) {
-    reasons.push(`(note: abstract short/missing — ${abstract.length} chars, no penalty)`);
+  // abstract 欠損・短すぎる場合はペナルティ
+  // （concept/topic だけで通過する非 ML 論文を弾く補助。真に ML の論文は title/topic で十分な点を得る）
+  if (abstract.length === 0) {
+    score += PENALTY_ABSTRACT_MISSING;
+    reasons.push(`${PENALTY_ABSTRACT_MISSING} abstract missing (0 chars)`);
+  } else if (abstract.length < ABSTRACT_SHORT_LEN) {
+    score += PENALTY_ABSTRACT_SHORT;
+    reasons.push(`${PENALTY_ABSTRACT_SHORT} abstract short (${abstract.length} chars)`);
   }
 
   return { score, reasons };
 }
 
 /**
+ * タイトルが雑誌名・会議名そのものの論文を検出するプレフィックスリスト。
+ * scoring 前に除外する（ML スコアを計算しても意味がないため）。
+ */
+const JOURNAL_NOISE_PREFIXES = [
+  'international journal of',
+  'international journal on',
+  'journal of',
+  'journal on',
+  'proceedings of',
+  'conference on',
+];
+
+function isJournalNoise(title) {
+  const t = (title ?? '').toLowerCase().trim();
+  return JOURNAL_NOISE_PREFIXES.some((p) => t.startsWith(p));
+}
+
+/**
  * 候補 works をスコアリングし、通過・除外に分類する。
  * dry-run 時は全件ログを出力してフィルタしない（全件通過扱い）。
- * @returns {{ toIngest: any[], filtered: any[], scores: Map<string, {score, reasons}> }}
+ * @returns {{ toIngest: any[], filtered: any[], scores: Map<string, {score, reasons}>, noiseCount: number }}
  */
 function filterCandidates(works) {
-  const toIngest = [];
-  const filtered = [];
-  const scores   = new Map();
+  const toIngest   = [];
+  const filtered   = [];
+  const scores     = new Map();
+  let   noiseCount = 0;
 
   for (const work of works) {
+    // ── 雑誌名・会議名そのものの title を scoring 前に除外
+    if (isJournalNoise(work.title)) {
+      noiseCount++;
+      const snippet = (work.title ?? '').slice(0, 70);
+      if (DRY_RUN) {
+        console.log(`  [noise ] SKIP journal-noise "${snippet}"`);
+      } else {
+        filtered.push({ id: work.id, title: work.title, score: null, reasons: ['journal-noise title'] });
+      }
+      continue;
+    }
+
     const { score, reasons } = scoreMlRelevance(work);
     const pass = score >= FILTER_THRESHOLD;
     scores.set(work.id, { score, reasons });
 
     if (DRY_RUN) {
-      // dry-run: 全件ログ表示、ingest には回さない（後で別途判断）
-      const label = pass ? 'PASS' : 'FAIL';
+      const label = pass ? 'PASS ' : 'FAIL ';
       const snippet = (work.title ?? '').slice(0, 70);
-      console.log(`  [score] ${label} score=${score} "${snippet}"`);
+      console.log(`  [score] ${label} score=${String(score).padStart(3)} "${snippet}"`);
       if (!pass) {
         for (const r of reasons) console.log(`    ${r}`);
         if (reasons.length === 0) console.log('    (no ML signals found)');
@@ -320,13 +400,17 @@ function filterCandidates(works) {
     }
   }
 
-  return { toIngest, filtered, scores };
+  return { toIngest, filtered, scores, noiseCount };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// OpenAlex fetch
+// Layer fetch (fetchOpenAlex ラッパー経由)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * 1レイヤー分の works を取得して返す。
+ * 429 / 上限到達は呼び出し元 (main) に伝播させる — ここではリトライしない。
+ */
 async function fetchLayer(layer) {
   const params = new URLSearchParams({
     filter: buildFilter(layer),
@@ -337,23 +421,14 @@ async function fetchLayer(layer) {
   const url = `${OPENALEX_BASE}/works?${params.toString()}`;
   console.log(`  [${layer.label}] n=${layer.n}`);
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (attempt > 0) {
-      const wait = 3000 * attempt;
-      console.log(`  [${layer.label}] 429, retry in ${wait}ms...`);
-      await new Promise((r) => setTimeout(r, wait));
-    }
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      const results = data.results ?? [];
-      console.log(`  [${layer.label}] → ${results.length} works`);
-      return results;
-    }
-    if (res.status === 429 && attempt < 2) continue;
-    console.warn(`  [${layer.label}] fetch failed: ${res.status} — skipping`);
-    return [];
+  const res = await fetchOpenAlex(url); // RateLimitError / RequestLimitError は上位へ
+  if (res.ok) {
+    const data = await res.json();
+    const results = data.results ?? [];
+    console.log(`  [${layer.label}] → ${results.length} works`);
+    return results;
   }
+  console.warn(`  [${layer.label}] fetch failed: ${res.status} — skipping`);
   return [];
 }
 
@@ -382,28 +457,40 @@ async function ingest(works) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function main() {
-  if (DRY_RUN) {
-    console.log('[fetch_openalex] mode=DRY-RUN (scoring only, no ingest)');
-    console.log(`[fetch_openalex] FILTER_THRESHOLD=${FILTER_THRESHOLD}`);
-  } else {
-    console.log('[fetch_openalex] mode=auto (stratified sampling + ML filter)');
-    console.log(`[fetch_openalex] FILTER_THRESHOLD=${FILTER_THRESHOLD}`);
-  }
+  const mode = DRY_RUN ? 'DRY-RUN (scoring only, no ingest)' : 'auto (stratified sampling + ML filter)';
+  console.log(`[fetch_openalex] mode=${mode}`);
+  console.log(`[fetch_openalex] FILTER_THRESHOLD=${FILTER_THRESHOLD}  MAX_REQUESTS=${MAX_OPENALEX_REQUESTS_PER_RUN}`);
 
   const layers = buildLayers();
-  console.log(`[fetch_openalex] ${layers.length} layers, target 20 papers`);
+  console.log(`[fetch_openalex] ${layers.length} layers`);
 
   // ── Fetch all layers ──────────────────────────────────────────────────────
 
-  const layerCounts = {};
-  const allWorks    = [];
-  const seen        = new Set();
+  const layerCounts  = {};
+  const allWorks     = [];
+  const seen         = new Set();
+  let   fetchStopped = null; // 'rate_limit' | 'request_limit' | null
 
   for (const layer of layers) {
     if (allWorks.length > 0) {
       await new Promise((r) => setTimeout(r, 300));
     }
-    const works = await fetchLayer(layer);
+    let works;
+    try {
+      works = await fetchLayer(layer);
+    } catch (err) {
+      if (err instanceof RateLimitError) {
+        console.error(`[fetch_openalex] 429 Rate Limited — stopping fetch immediately`);
+        fetchStopped = 'rate_limit';
+        break;
+      }
+      if (err instanceof RequestLimitError) {
+        console.log(`[fetch_openalex] Request limit reached (${requestCount}/${MAX_OPENALEX_REQUESTS_PER_RUN}) — stopping fetch`);
+        fetchStopped = 'request_limit';
+        break;
+      }
+      throw err;
+    }
     let added = 0;
     for (const work of works) {
       if (!seen.has(work.id)) {
@@ -415,44 +502,70 @@ async function main() {
     layerCounts[layer.label] = added;
   }
 
+  // ── Layer summary ─────────────────────────────────────────────────────────
+
   console.log('[fetch_openalex] Layer results:');
-  let total = 0;
+  let rawFetched = 0;
   for (const [label, count] of Object.entries(layerCounts)) {
     console.log(`  ${label}: ${count}`);
-    total += count;
+    rawFetched += count;
   }
-  console.log(`[fetch_openalex] Total unique: ${total}`);
+  console.log(`[fetch_openalex] raw_fetched=${rawFetched}  requests=${requestCount}/${MAX_OPENALEX_REQUESTS_PER_RUN}`);
+
+  if (fetchStopped === 'rate_limit') {
+    logStats({ rawFetched, mlRejected: 0, inserted: 0, skippedExisting: 0, workerRejected: 0 });
+    process.exit(2);
+  }
 
   if (allWorks.length === 0) {
     console.log('[fetch_openalex] No works to process.');
+    logStats({ rawFetched, mlRejected: 0, inserted: 0, skippedExisting: 0, workerRejected: 0 });
     return;
   }
 
   // ── ML Relevance Filter ───────────────────────────────────────────────────
 
   console.log('[fetch_openalex] Scoring ML relevance...');
-  const { toIngest, filtered } = filterCandidates(allWorks);
+  const { toIngest, filtered, noiseCount } = filterCandidates(allWorks);
+  const mlRejected = filtered.length;
 
   if (DRY_RUN) {
-    // Score summary for dry-run
-    const allScores = allWorks.map((w) => scoreMlRelevance(w).score);
-    const passCount = allScores.filter((s) => s >= FILTER_THRESHOLD).length;
-    const failCount = allScores.length - passCount;
+    // noise 論文を除いたもののみスコア計算（noise はすでに [noise] ログ済み）
+    const scoredWorks = allWorks.filter((w) => !isJournalNoise(w.title));
+    const allScores   = scoredWorks.map((w) => scoreMlRelevance(w).score);
+    const passCount   = allScores.filter((s) => s >= FILTER_THRESHOLD).length;
+    const failCount   = allScores.length - passCount;
     const avg = allScores.length > 0
       ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1)
-      : 0;
-    console.log(`[fetch_openalex] DRY-RUN score summary:`);
-    console.log(`  total=${allScores.length}  pass=${passCount}  fail=${failCount}`);
-    console.log(`  avg=${avg}  min=${Math.min(...allScores)}  max=${Math.max(...allScores)}`);
-    console.log(`  threshold=${FILTER_THRESHOLD} (no ingest performed)`);
+      : 'n/a';
+    const minScore = allScores.length ? Math.min(...allScores) : 'n/a';
+    const maxScore = allScores.length ? Math.max(...allScores) : 'n/a';
+    // スコア分布バケツ（閾値を変えて比較するときに便利）
+    const buckets = [
+      { label: ' <0',   lo: -Infinity, hi: 0  },
+      { label: '0-9',   lo: 0,         hi: 10 },
+      { label: '10-19', lo: 10,        hi: 20 },
+      { label: '20-29', lo: 20,        hi: 30 },
+      { label: '30-39', lo: 30,        hi: 40 },
+      { label: '40+',   lo: 40,        hi: Infinity },
+    ];
+    const distStr = buckets
+      .map((b) => `${b.label}:${allScores.filter((s) => s >= b.lo && s < b.hi).length}`)
+      .join('  ');
+    console.log(`[fetch_openalex] DRY-RUN score summary (threshold=${FILTER_THRESHOLD}):`);
+    console.log(`  noise=${noiseCount}  scored=${allScores.length}  pass=${passCount}  fail=${failCount}`);
+    console.log(`  avg=${avg}  min=${minScore}  max=${maxScore}`);
+    console.log(`  dist: ${distStr}`);
+    logStats({ rawFetched, mlRejected: failCount, inserted: 0, skippedExisting: 0, workerRejected: 0, dryRun: true });
     return;
   }
 
   if (filtered.length > 0) {
-    console.log(`[fetch_openalex] Filtered ${filtered.length}/${allWorks.length} works (score < ${FILTER_THRESHOLD}):`);
+    console.log(`[fetch_openalex] ML filter: ${filtered.length}/${allWorks.length} rejected (noise=${noiseCount} score<${FILTER_THRESHOLD}=${filtered.length - noiseCount}):`);
     for (const f of filtered) {
-      const snippet = (f.title ?? '').slice(0, 70);
-      console.log(`  SKIP score=${f.score} "${snippet}"`);
+      const snippet  = (f.title ?? '').slice(0, 70);
+      const scoreStr = f.score == null ? 'noise' : `score=${f.score}`;
+      console.log(`  SKIP ${scoreStr} "${snippet}"`);
       for (const r of f.reasons) console.log(`    ${r}`);
       if (f.reasons.length === 0) console.log('    (no ML signals found)');
     }
@@ -460,18 +573,42 @@ async function main() {
     console.log(`[fetch_openalex] All ${allWorks.length} works passed ML filter.`);
   }
 
-  console.log(`[fetch_openalex] Sending ${toIngest.length} works to Worker...`);
-
   if (toIngest.length === 0) {
     console.log('[fetch_openalex] Nothing to ingest after filtering.');
+    logStats({ rawFetched, mlRejected, inserted: 0, skippedExisting: 0, workerRejected: 0 });
     return;
   }
 
+  // ── Ingest ────────────────────────────────────────────────────────────────
+
+  console.log(`[fetch_openalex] Sending ${toIngest.length} works to Worker...`);
   const result = await ingest(toIngest);
+
+  logStats({
+    rawFetched,
+    mlRejected,
+    inserted:        result.inserted       ?? 0,
+    skippedExisting: result.skipped        ?? 0,
+    workerRejected:  result.rejected       ?? 0,
+    quarantined:     result.quarantined    ?? 0,
+  });
+}
+
+/**
+ * 最終 stats を構造化してログ出力する。
+ * dry-run 時は inserted / skipped_existing / rejected は計測不能なので "(dry-run)" と表示。
+ */
+function logStats({ rawFetched, mlRejected, inserted, skippedExisting, workerRejected, quarantined = 0, dryRun = false }) {
+  const ins   = dryRun ? '(dry-run)' : String(inserted);
+  const skip  = dryRun ? '(dry-run)' : String(skippedExisting);
+  const wrej  = dryRun ? '(dry-run)' : String(workerRejected);
+  const quar  = dryRun ? '' : `  quarantined=${quarantined}`;
   console.log(
-    `[fetch_openalex] Done: ` +
-    `inserted=${result.inserted} skipped=${result.skipped} ` +
-    `quarantined=${result.quarantined ?? 0} rejected=${result.rejected ?? 0}`,
+    `[fetch_openalex] ── stats ──────────────────────────────────────────\n` +
+    `  raw_fetched=${rawFetched}  ml_rejected=${mlRejected}\n` +
+    `  inserted=${ins}  skipped_existing=${skip}  rejected=${wrej}${quar}\n` +
+    `  requests=${requestCount}/${MAX_OPENALEX_REQUESTS_PER_RUN}` +
+    `  threshold=${FILTER_THRESHOLD}`,
   );
 }
 
