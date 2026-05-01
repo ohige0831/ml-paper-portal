@@ -62,6 +62,11 @@ export interface PublishState {
   rejected_reason: string | null;
   rejected_by: string | null;
   rejected_at: string | null;
+  llm_recheck_checked_at: string | null;
+  recheck_reason: string | null;
+  recheck_confidence: string | null;
+  recheck_model: string | null;
+  recheck_flagged_at: string | null;
 }
 
 export type PaperStatus =
@@ -71,9 +76,10 @@ export type PaperStatus =
   | 'approved'
   | 'published'
   | 'error'
-  | 'quarantined'   // failed ML-relevance or metadata validation at ingest
-  | 'withdrawn'     // manually retracted from public view
-  | 'rejected';     // admin dismissed from review — NOT re-summarized automatically
+  | 'quarantined'    // failed ML-relevance or metadata validation at ingest
+  | 'withdrawn'      // manually retracted from public view
+  | 'rejected'       // admin dismissed from review — NOT re-summarized automatically
+  | 'needs_recheck'; // LLM flagged as possibly irrelevant — pending human review
 
 // OpenAlex API response shape (partial)
 export interface OpenAlexWork {
@@ -132,4 +138,8 @@ export interface PaperWithSummary {
   rejected_reason?: string | null;
   rejected_by?: string | null;
   rejected_at?: string | null;
+  recheck_reason?: string | null;
+  recheck_confidence?: string | null;
+  recheck_model?: string | null;
+  recheck_flagged_at?: string | null;
 }

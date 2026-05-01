@@ -361,6 +361,141 @@ img { max-width: 100%; }
 }
 .site-nav__random:hover { background: #1d4ed8; text-decoration: none !important; opacity: 1; }
 
+/* Guide page */
+.hero__guide-link {
+  display: block;
+  margin-top: 18px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.82);
+  text-decoration: none;
+}
+.hero__guide-link:hover { color: #fff; text-decoration: underline; }
+
+.guide-toc {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.guide-toc > a {
+  font-size: 14px;
+  color: #374151;
+  padding: 3px 0;
+  display: block;
+}
+.guide-toc > a:hover { color: #2563eb; text-decoration: none; }
+.guide-toc details { margin: 2px 0; }
+.guide-toc details summary {
+  font-size: 14px;
+  color: #374151;
+  padding: 3px 0;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+.guide-toc details summary::-webkit-details-marker { display: none; }
+.guide-toc details summary::before {
+  content: '▶';
+  font-size: 9px;
+  color: #9ca3af;
+  transition: transform 0.2s;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.guide-toc details[open] summary::before { transform: rotate(90deg); }
+.guide-toc details summary:hover { color: #2563eb; }
+.guide-toc .toc-sub {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 2px;
+}
+.guide-toc .toc-sub a {
+  font-size: 13px;
+  color: #6b7280;
+  padding: 2px 0;
+  display: block;
+}
+.guide-toc .toc-sub a:hover { color: #2563eb; text-decoration: none; }
+
+.guide-body { padding: 0 0 64px; }
+.guide-section { margin-bottom: 52px; }
+.guide-section h2 {
+  font-size: 21px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
+  scroll-margin-top: 76px;
+}
+.guide-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 24px 0 8px;
+  scroll-margin-top: 76px;
+}
+.guide-section p { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 12px; }
+.guide-section ul, .guide-section ol { padding-left: 22px; margin-bottom: 12px; }
+.guide-section li { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 4px; }
+.guide-section pre {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-x: auto;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.warning-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #92400e;
+  margin-bottom: 16px;
+}
+
+.tool-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.15s;
+}
+.tool-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.tool-card__name { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.tool-card__name a { color: #1a1a1a; }
+.tool-card__name a:hover { color: #2563eb; text-decoration: none; }
+.tool-card__desc { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 10px; }
+.tool-card__points { padding-left: 20px; margin: 0; }
+.tool-card__points li { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 2px; }
+
+.guide-callout {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 24px 26px;
+  margin-bottom: 16px;
+}
+.guide-callout__title { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #1e40af; }
+.guide-callout ol { padding-left: 22px; margin: 0; }
+.guide-callout li { font-size: 15px; line-height: 1.8; color: #1e3a8a; margin-bottom: 4px; }
+
 @media (max-width: 640px) {
   .paper-grid { grid-template-columns: 1fr; }
   .site-nav a { padding: 6px 6px; font-size: 13px; }
@@ -369,4 +504,5 @@ img { max-width: 100%; }
   .paper-detail__one-line { font-size: 15px; }
   .paper-section__content { font-size: 14px; }
   .original-paper-box { padding: 14px 16px; }
+  .guide-toc { padding: 16px 18px; }
 }

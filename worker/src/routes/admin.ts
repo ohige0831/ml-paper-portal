@@ -8,6 +8,7 @@ import {
   rejectPaper,
   resummarizePaper,
   restorePaper,
+  restoreFromRecheck,
   getTagsWithCount,
   paperExists,
   insertPaper,
@@ -337,6 +338,13 @@ adminRouter.post('/api/admin/papers/:id/quarantine-approve', async (c) => {
   return c.json({ ok: true });
 });
 
+// POST /api/admin/papers/:id/recheck-pass  (clear needs_recheck → published)
+adminRouter.post('/api/admin/papers/:id/recheck-pass', async (c) => {
+  const id = c.req.param('id');
+  await restoreFromRecheck(c.env.DB, id);
+  return c.json({ ok: true });
+});
+
 // POST /api/admin/trigger/fetch
 adminRouter.post('/api/trigger/fetch', async (c) => {
   const result = await runFetch(c.env.DB);
@@ -606,6 +614,10 @@ function serializePaper(p: PaperWithSummary) {
     rejected_at: p.rejected_at ?? null,
     rejected_reason: p.rejected_reason ?? null,
     rejected_by: p.rejected_by ?? null,
+    recheck_reason: p.recheck_reason ?? null,
+    recheck_confidence: p.recheck_confidence ?? null,
+    recheck_model: p.recheck_model ?? null,
+    recheck_flagged_at: p.recheck_flagged_at ?? null,
   };
 }
 
@@ -645,6 +657,7 @@ function buildAdminHtml(siteUrl: string): string {
   .status-quarantined { background: #fde68a; color: #78350f; }
   .status-withdrawn { background: #e5e7eb; color: #4b5563; }
   .status-rejected  { background: #fce7f3; color: #9d174d; }
+  .status-needs_recheck { background: #fef3c7; color: #92400e; }
   .paper-list { display: flex; flex-direction: column; gap: 12px; }
   .paper-card { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; }
   .paper-card:hover { border-color: #2563eb; }
@@ -702,6 +715,7 @@ function buildAdminHtml(siteUrl: string): string {
         <option value="fetched">取得済み</option>
         <option value="summarized">要約済み</option>
         <option value="published">公開済み</option>
+        <option value="needs_recheck">再確認待ち</option>
         <option value="rejected">却下保留</option>
         <option value="quarantined">検疫中</option>
         <option value="withdrawn">取り下げ済み</option>
@@ -871,6 +885,16 @@ function renderDetail(p) {
         <span style="color:#16a34a;font-size:14px;">✓ 公開済み</span>
         <button class="btn btn-danger" onclick="withdraw('\${paper.id}')">公開取り下げ</button>
       \` : ''}
+      \${status === 'needs_recheck' ? \`
+        <div class="msg" style="background:#fef3c7;color:#92400e;margin:0;">
+          AI再確認フラグ: \${escHtml(p.recheck_reason || '')}
+          \${p.recheck_confidence ? \` (確信度: \${escHtml(p.recheck_confidence)})\` : ''}
+          \${p.recheck_flagged_at ? \` — \${p.recheck_flagged_at.slice(0,10)}\` : ''}
+        </div>
+        <button class="btn btn-success" onclick="recheckPass('\${paper.id}')">問題なし → 公開に戻す</button>
+        <button class="btn btn-danger" onclick="withdraw('\${paper.id}')">公開取り下げ</button>
+        <button class="btn btn-outline" onclick="rejectWithReason('\${paper.id}')">却下して保留</button>
+      \` : ''}
       \${status === 'quarantined' ? \`
         <div class="msg" style="background:#fde68a;color:#78350f;margin:0;">検疫理由: \${escHtml(p.error_message || '')}</div>
         <button class="btn btn-success" onclick="quarantineApprove('\${paper.id}')">救済（取得済みに戻す）</button>
@@ -940,6 +964,15 @@ async function quarantineApprove(id) {
   try {
     await api('/api/admin/papers/' + id + '/quarantine-approve', 'POST');
     showMsg('取得済みに移動しました（要約後に再レビューしてください）', true);
+    await loadPapers();
+  } catch(e) { showMsg('エラー: ' + e.message, false); }
+}
+
+async function recheckPass(id) {
+  if (!confirm('この論文を公開に戻しますか？（AI 再確認フラグをクリアします）')) return;
+  try {
+    await api('/api/admin/papers/' + id + '/recheck-pass', 'POST');
+    showMsg('公開に戻しました', true);
     await loadPapers();
   } catch(e) { showMsg('エラー: ' + e.message, false); }
 }

@@ -1,18 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/</loc>
   </url>
+
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/latest/</loc>
   </url>
+
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/</loc>
   </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/guide/</loc>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/random/</loc>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/tags/llm/</loc>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/tags/gnn/</loc>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/tags/transformer/</loc>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/tags/rag/</loc>
+  </url>
+
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/deep-residual-learning-for-image-recognition</loc>
   </url>
+
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/attention-is-all-you-need</loc>
   </url>
+
 </urlset>

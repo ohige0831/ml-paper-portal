@@ -47,6 +47,7 @@ function renderTagPage(tag: Tag): string {
     <nav class="site-nav">
       <a href="/latest/">新着</a>
       <a href="/tags/">タグ</a>
+      <a href="/guide/">ガイド</a>
       <a href="/random" class="site-nav__random">ランダム</a>
     </nav>
   </div>

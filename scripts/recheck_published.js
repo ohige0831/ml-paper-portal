@@ -1,0 +1,156 @@
+#!/usr/bin/env node
+// scripts/recheck_published.js
+// Weekly LLM batch recheck: flags published papers that may be irrelevant to ML/AI.
+//
+// Usage:
+//   node scripts/recheck_published.js              # check unchecked papers
+//   node scripts/recheck_published.js --all        # re-check ALL published papers
+//   node scripts/recheck_published.js --dry-run    # print decisions, no submit
+//
+// Required env vars:
+//   WORKER_URL, INGEST_TOKEN, OPENAI_API_KEY
+// Optional:
+//   OPENAI_MODEL (default: gpt-4o-mini)
+//   RECHECK_LIMIT (default: 100, max 500)
+
+const WORKER_URL    = process.env.WORKER_URL;
+const INGEST_TOKEN  = process.env.INGEST_TOKEN;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_MODEL  = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
+const LIMIT         = Math.min(Number(process.env.RECHECK_LIMIT ?? '100'), 500);
+
+const DRY_RUN  = process.argv.includes('--dry-run');
+const ALL_MODE = process.argv.includes('--all');
+
+if (!WORKER_URL || !INGEST_TOKEN || !OPENAI_API_KEY) {
+  console.error('[recheck] ERROR: WORKER_URL, INGEST_TOKEN, OPENAI_API_KEY are required');
+  process.exit(1);
+}
+
+async function workerApi(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${INGEST_TOKEN}`,
+    },
+  };
+  if (body !== null) opts.body = JSON.stringify(body);
+  const res = await fetch(`${WORKER_URL}${path}`, opts);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Worker ${res.status}: ${text}`);
+  }
+  return res.json();
+}
+
+async function llmRecheck(paper) {
+  const title    = paper.title ?? '';
+  const abstract = (paper.abstract ?? '').slice(0, 500);
+
+  const prompt = `あなたは機械学習・AI論文の関連性を判定する専門家です。
+以下の論文が「機械学習・AI・データサイエンス」の専門ポータルサイトに掲載するのに適切かどうかを判定してください。
+
+論文タイトル: ${title}
+アブストラクト（先頭500文字）: ${abstract}
+
+以下のJSON形式のみで回答してください（他の文字を含めないこと）:
+{"flag": true または false, "reason": "理由（日本語・50文字以内）", "confidence": "high" または "medium" または "low"}
+
+判定基準:
+- flag=true: ML/AI/DL/NLP/CVと無関係、または関連性が極めて薄い
+- flag=false: ML/AI関連として掲載適切
+- 判断が難しい場合は flag=false（人間が判断するのは flag=true のみ）`;
+
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' },
+      max_tokens: 150,
+      temperature: 0,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`OpenAI ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content ?? '{}';
+
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    throw new Error(`LLM returned invalid JSON: ${content.slice(0, 100)}`);
+  }
+
+  return {
+    flag:       Boolean(parsed.flag),
+    reason:     String(parsed.reason ?? '').slice(0, 200),
+    confidence: ['high', 'medium', 'low'].includes(parsed.confidence) ? parsed.confidence : 'medium',
+  };
+}
+
+async function main() {
+  console.log(`[recheck] start  model=${OPENAI_MODEL}  limit=${LIMIT}  dry_run=${DRY_RUN}  all=${ALL_MODE}`);
+
+  const pendingUrl = `/api/recheck/pending?limit=${LIMIT}${ALL_MODE ? '&all=1' : ''}`;
+  const { papers, count } = await workerApi(pendingUrl);
+  console.log(`[recheck] pending=${count}`);
+
+  if (count === 0) {
+    console.log('[recheck] nothing to do');
+    return;
+  }
+
+  const results = [];
+  let flaggedCount = 0;
+  let passedCount  = 0;
+  let errorCount   = 0;
+
+  for (const paper of papers) {
+    try {
+      const result = await llmRecheck(paper);
+      const label = result.flag ? 'FLAG' : 'pass';
+      console.log(`  [${label}] (${result.confidence}) ${(paper.title ?? '').slice(0, 70)}`);
+      if (result.flag) console.log(`         reason: ${result.reason}`);
+
+      if (result.flag) flaggedCount++;
+      else             passedCount++;
+
+      if (!DRY_RUN) {
+        results.push({
+          paper_id:   paper.id,
+          flag:       result.flag,
+          reason:     result.reason,
+          confidence: result.confidence,
+          model:      OPENAI_MODEL,
+        });
+      }
+    } catch (err) {
+      console.error(`  [error] ${paper.id}: ${err.message}`);
+      errorCount++;
+    }
+  }
+
+  if (!DRY_RUN && results.length > 0) {
+    const submitResult = await workerApi('/api/recheck/submit', 'POST', { results });
+    console.log(`[recheck] submit → flagged=${submitResult.flagged} passed=${submitResult.passed} errors=${submitResult.errors}`);
+  }
+
+  const dryTag = DRY_RUN ? ' (DRY_RUN — no submit)' : '';
+  console.log(`[recheck] done  total=${papers.length}  flagged=${flaggedCount}  passed=${passedCount}  errors=${errorCount}${dryTag}`);
+}
+
+main().catch((err) => {
+  console.error('[recheck] FATAL:', err.message);
+  process.exit(1);
+});

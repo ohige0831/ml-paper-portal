@@ -1,6 +1,14 @@
 import { Hono } from 'hono';
 import type { Env, OpenAlexWork } from '../types';
-import { insertPaper, paperExists, insertFetchLog, setPublishState } from '../db/queries';
+import {
+  insertPaper,
+  paperExists,
+  insertFetchLog,
+  setPublishState,
+  getRecheckPending,
+  markRecheckChecked,
+  markNeedsRecheck,
+} from '../db/queries';
 import {
   reconstructAbstract,
   extractPdfUrl,
@@ -11,10 +19,20 @@ import { validateWork } from '../lib/validate';
 
 export const ingestRouter = new Hono<{ Bindings: Env }>();
 
-// Bearer token auth — scope to /api/ingest only to avoid intercepting /admin
+function bearerAuth(token: string, header: string): boolean {
+  return !!token && header === `Bearer ${token}`;
+}
+
+// Bearer token auth for ingest and recheck endpoints
 ingestRouter.use('/api/ingest', async (c, next) => {
-  const auth = c.req.header('Authorization') ?? '';
-  if (!c.env.INGEST_TOKEN || auth !== `Bearer ${c.env.INGEST_TOKEN}`) {
+  if (!bearerAuth(c.env.INGEST_TOKEN, c.req.header('Authorization') ?? '')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  return next();
+});
+
+ingestRouter.use('/api/recheck/*', async (c, next) => {
+  if (!bearerAuth(c.env.INGEST_TOKEN, c.req.header('Authorization') ?? '')) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   return next();
@@ -98,4 +116,54 @@ ingestRouter.post('/api/ingest', async (c) => {
   await insertFetchLog(c.env.DB, works.length, inserted, 'ok').catch(() => {});
   console.log(`[ingest] inserted=${inserted} skipped=${skipped} rejected=${rejected} quarantined=${quarantined}`);
   return c.json({ inserted, skipped, rejected, quarantined });
+});
+
+// GET /api/recheck/pending?limit=N&all=1
+// Returns published papers not yet checked by LLM (or all published when all=1).
+ingestRouter.get('/api/recheck/pending', async (c) => {
+  const limit = Math.min(Number(c.req.query('limit') ?? '100'), 500);
+  const allMode = c.req.query('all') === '1';
+  const papers = await getRecheckPending(c.env.DB, limit, allMode);
+  return c.json({ papers, count: papers.length });
+});
+
+// POST /api/recheck/submit
+// Body: { results: Array<{ paper_id, flag, reason, confidence, model }> }
+ingestRouter.post('/api/recheck/submit', async (c) => {
+  let body: {
+    results: Array<{
+      paper_id: string;
+      flag: boolean;
+      reason: string;
+      confidence: string;
+      model: string;
+    }>;
+  };
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'Invalid JSON' }, 400);
+  }
+
+  const results = body?.results ?? [];
+  let flagged = 0;
+  let passed = 0;
+  let errors = 0;
+
+  for (const r of results) {
+    try {
+      if (r.flag) {
+        await markNeedsRecheck(c.env.DB, r.paper_id, r.reason, r.confidence, r.model);
+        flagged++;
+      } else {
+        await markRecheckChecked(c.env.DB, r.paper_id);
+        passed++;
+      }
+    } catch {
+      errors++;
+    }
+  }
+
+  console.log(`[recheck] submit flagged=${flagged} passed=${passed} errors=${errors}`);
+  return c.json({ flagged, passed, errors });
 });

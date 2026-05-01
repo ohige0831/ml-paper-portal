@@ -1,0 +1,40 @@
+name: Weekly LLM Recheck
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Sunday 02:00 UTC (= 11:00 JST)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (print decisions, no submit)'
+        type: boolean
+        default: false
+      all_mode:
+        description: 'Re-check ALL published papers (including already checked)'
+        type: boolean
+        default: false
+
+jobs:
+  recheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run LLM recheck
+        env:
+          WORKER_URL:      ${{ secrets.WORKER_URL }}
+          INGEST_TOKEN:    ${{ secrets.INGEST_TOKEN }}
+          OPENAI_API_KEY:  ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL:    gpt-4o-mini
+          RECHECK_LIMIT:   '100'
+        run: |
+          FLAGS=""
+          if [ "${{ github.event.inputs.dry_run }}"  = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
+          if [ "${{ github.event.inputs.all_mode }}" = "true" ]; then FLAGS="$FLAGS --all"; fi
+          node scripts/recheck_published.js $FLAGS

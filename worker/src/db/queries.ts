@@ -204,7 +204,8 @@ export async function getPapersByStatus(
   const rows = await db.prepare(`
     SELECT p.*, ps.status, ps.error_message,
            ps.withdrawn_at, ps.withdrawn_reason, ps.withdrawn_by,
-           ps.rejected_at, ps.rejected_reason, ps.rejected_by
+           ps.rejected_at, ps.rejected_reason, ps.rejected_by,
+           ps.recheck_reason, ps.recheck_confidence, ps.recheck_model, ps.recheck_flagged_at
     FROM papers p
     JOIN publish_states ps ON ps.paper_id = p.id
     WHERE ps.status = ?
@@ -219,6 +220,10 @@ export async function getPapersByStatus(
     rejected_at: string | null;
     rejected_reason: string | null;
     rejected_by: string | null;
+    recheck_reason: string | null;
+    recheck_confidence: string | null;
+    recheck_model: string | null;
+    recheck_flagged_at: string | null;
   }>();
 
   return Promise.all(rows.results.map(async (row) => {
@@ -226,6 +231,7 @@ export async function getPapersByStatus(
       status: st, error_message,
       withdrawn_at, withdrawn_reason, withdrawn_by,
       rejected_at, rejected_reason, rejected_by,
+      recheck_reason, recheck_confidence, recheck_model, recheck_flagged_at,
       ...paper
     } = row;
     const summary = await getLatestSummary(db, paper.id);
@@ -234,6 +240,7 @@ export async function getPapersByStatus(
       paper, summary, tags, status: st, error_message,
       withdrawn_at, withdrawn_reason, withdrawn_by,
       rejected_at, rejected_reason, rejected_by,
+      recheck_reason, recheck_confidence, recheck_model, recheck_flagged_at,
     };
   }));
 }
@@ -415,4 +422,60 @@ export async function getPendingForSummarize(
     LIMIT ?
   `).bind(limit).all<Paper>();
   return rows.results;
+}
+
+export async function getRecheckPending(
+  db: D1Database,
+  limit = 50,
+  allMode = false,
+): Promise<Paper[]> {
+  const sql = allMode
+    ? `SELECT p.* FROM papers p JOIN publish_states ps ON ps.paper_id = p.id
+       WHERE ps.status = 'published' ORDER BY p.published_date ASC LIMIT ?`
+    : `SELECT p.* FROM papers p JOIN publish_states ps ON ps.paper_id = p.id
+       WHERE ps.status = 'published' AND ps.llm_recheck_checked_at IS NULL
+       ORDER BY p.published_date ASC LIMIT ?`;
+  const rows = await db.prepare(sql).bind(limit).all<Paper>();
+  return rows.results;
+}
+
+export async function markRecheckChecked(db: D1Database, paperId: string): Promise<void> {
+  await db.prepare(`
+    UPDATE publish_states
+    SET llm_recheck_checked_at = datetime('now'), updated_at = datetime('now')
+    WHERE paper_id = ?
+  `).bind(paperId).run();
+}
+
+export async function markNeedsRecheck(
+  db: D1Database,
+  paperId: string,
+  reason: string,
+  confidence: string,
+  model: string,
+): Promise<void> {
+  await db.prepare(`
+    UPDATE publish_states
+    SET status = 'needs_recheck',
+        llm_recheck_checked_at = datetime('now'),
+        recheck_reason = ?,
+        recheck_confidence = ?,
+        recheck_model = ?,
+        recheck_flagged_at = datetime('now'),
+        updated_at = datetime('now')
+    WHERE paper_id = ?
+  `).bind(reason, confidence, model, paperId).run();
+}
+
+export async function restoreFromRecheck(db: D1Database, paperId: string): Promise<void> {
+  await db.prepare(`
+    UPDATE publish_states
+    SET status = 'published',
+        recheck_reason = NULL,
+        recheck_confidence = NULL,
+        recheck_model = NULL,
+        recheck_flagged_at = NULL,
+        updated_at = datetime('now')
+    WHERE paper_id = ?
+  `).bind(paperId).run();
 }

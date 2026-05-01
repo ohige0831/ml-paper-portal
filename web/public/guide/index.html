@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>このサイトの使い方と論文の読み方 - ML Paper Portal</title>
+<meta name="description" content="ML Paper Portalの使い方と、機械学習論文の読み方・おすすめツールを紹介するガイドページ。">
+<link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="site-logo">ML Paper Portal</a>
+    <nav class="site-nav">
+      <a href="/latest/">新着</a>
+      <a href="/tags/">タグ</a>
+      <a href="/guide/">ガイド</a>
+      <a href="/random" class="site-nav__random">ランダム</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="tag-page-header">
+      <div class="breadcrumb">
+        <a href="/">ホーム</a> / ガイド
+      </div>
+      <h1 class="tag-page-title" style="font-size:26px;">このサイトの使い方と論文の読み方</h1>
+    </div>
+
+    <nav class="guide-toc" aria-label="ページ目次">
+      <a href="#about">1. このサイトについて</a>
+      <a href="#how-to-use">2. このサイトの使い方</a>
+      <a href="#not-replacement">3. このサイトは論文を読む代わりではありません</a>
+      <a href="#arxiv">4. arXivとは</a>
+      <a href="#paper-detail">5. 論文詳細ページで見るポイント</a>
+      <a href="#deep-dive">6. 気になった論文を深掘りする流れ</a>
+      <a href="#llm-caution">7. LLMを使うときの注意</a>
+      <a href="#critical-reading">8. 論文は少し疑って読む</a>
+
+      <details>
+        <summary>9. おすすめの拡張機能・ソフト</summary>
+        <div class="toc-sub">
+          <a href="#tool-scholar-pdf-reader">9-1. Google Scholar PDF Reader</a>
+          <a href="#tool-scholar-button">9-2. Google Scholar Button</a>
+          <a href="#tool-zotero">9-3. Zotero</a>
+          <a href="#tool-unpaywall">9-4. Unpaywall</a>
+          <a href="#tool-ar5iv">9-5. ar5iv / arXiv HTML</a>
+        </div>
+      </details>
+
+      <details>
+        <summary>10. 関連論文や実装を探すサイト</summary>
+        <div class="toc-sub">
+          <a href="#site-google-scholar">10-1. Google Scholar</a>
+          <a href="#site-semantic-scholar">10-2. Semantic Scholar</a>
+          <a href="#site-papers-with-code">10-3. Papers with Code</a>
+          <a href="#site-connected-papers">10-4. Connected Papers</a>
+        </div>
+      </details>
+
+      <a href="#beginner-reading">11. 初心者向けの読み方</a>
+      <a href="#closing">12. 最後に</a>
+    </nav>
+
+    <div class="guide-body">
+
+      <!-- 1 -->
+      <section class="guide-section" id="about">
+        <h2>1. このサイトについて</h2>
+        <p>ML Paper Portal は、機械学習関連の論文を日本語で見つけやすくするためのポータルです。</p>
+        <p>論文の日本語タイトル、短い説明、タグ、キーワード、簡単な要約を通して、読む前の判断材料を提供します。</p>
+        <p>このサイトの目的は、論文を完全に解説することではありません。目的は、</p>
+        <ul>
+          <li>読む価値がありそうか</li>
+          <li>自分の興味に近いか</li>
+          <li>どの分野の話か</li>
+          <li>どのようなキーワードに関係しているか</li>
+        </ul>
+        <p>を素早く判断できるようにすることです。</p>
+        <p>気になる論文を見つけたら、元論文や関連資料を確認しながら、自分の手で深掘りしていくことをおすすめします。</p>
+      </section>
+
+      <!-- 2 -->
+      <section class="guide-section" id="how-to-use">
+        <h2>2. このサイトの使い方</h2>
+
+        <h3>新着から探す</h3>
+        <p>新着ページでは、最近追加された論文を確認できます。機械学習分野の新しい研究をざっと眺めたいときに便利です。</p>
+
+        <h3>タグから探す</h3>
+        <p>タグページでは、LLM、RAG、Vision、Diffusion、強化学習など、分野や手法ごとに論文を探せます。自分の興味がある分野から論文を探したい場合は、タグから見るのがおすすめです。</p>
+
+        <h3>ランダムで探す</h3>
+        <p>ランダムページでは、登録されている論文の中からランダムに1本表示します。目的はないけれど、普段なら出会わない論文を見つけたいときに便利です。</p>
+
+        <h3>論文詳細ページを見る</h3>
+        <p>論文詳細ページでは、以下のような情報を確認できます。</p>
+        <ul>
+          <li>日本語タイトル</li>
+          <li>英語原題</li>
+          <li>1行説明</li>
+          <li>3行要約</li>
+          <li>キーワード</li>
+          <li>タグ</li>
+          <li>どんな人に向いていそうか</li>
+          <li>元論文リンク</li>
+          <li>関連論文</li>
+        </ul>
+        <p>まずは、このページで「少し読んでみたいか」を判断してください。</p>
+      </section>
+
+      <!-- 3 -->
+      <section class="guide-section" id="not-replacement">
+        <h2>3. このサイトは論文を読む代わりではありません</h2>
+        <p>このサイトは、論文を読む代わりになる場所ではありません。</p>
+        <p>ML Paper Portal は、膨大な機械学習論文の中から、</p>
+        <ul>
+          <li>これは少し面白そう</li>
+          <li>自分の研究や開発に関係ありそう</li>
+          <li>あとで読んでみたい</li>
+        </ul>
+        <p>と思える論文を見つけるための入口です。</p>
+        <p>このサイトの要約や説明は、読む前の判断材料です。要約だけで内容を完全に理解したり、研究の正しさを判断したりすることはできません。</p>
+        <p>興味を持った論文については、元論文の Abstract、Introduction、Method、Experiment、Conclusion などを確認することをおすすめします。</p>
+        <p>必要に応じて、関連研究、実装コード、著者ページ、データセット、評価結果も確認してください。</p>
+      </section>
+
+      <!-- 4 -->
+      <section class="guide-section" id="arxiv">
+        <h2>4. arXivとは</h2>
+        <p>arXiv は、研究者が論文やプレプリントを公開するためのオープンアクセスなプラットフォームです。機械学習、コンピュータサイエンス、統計、数学、物理などの分野で広く使われています。</p>
+        <p>arXiv の大きな利点は、最新の研究を早く読めることです。</p>
+        <p>一方で、arXiv に掲載されていることは、その論文が査読済みであることを意味しません。そのため、論文を深く読む場合は、以下も確認することをおすすめします。</p>
+        <ul>
+          <li>DOI があるか</li>
+          <li>学会やジャーナルに採択されているか</li>
+          <li>出版社版や公式ページがあるか</li>
+          <li>arXiv 上でバージョンが更新されていないか</li>
+          <li>著者の公式ページや GitHub があるか</li>
+        </ul>
+        <p>arXiv は最新研究に触れるために非常に便利ですが、最終版や査読状況は別途確認する姿勢が大切です。</p>
+      </section>
+
+      <!-- 5 -->
+      <section class="guide-section" id="paper-detail">
+        <h2>5. 論文詳細ページで見るポイント</h2>
+        <p>論文詳細ページでは、まず以下の順番で見るのがおすすめです。</p>
+        <ol>
+          <li>日本語タイトルと英語原題</li>
+          <li>1行説明</li>
+          <li>3行要約</li>
+          <li>タグとキーワード</li>
+          <li>どんな人に向いていそうか</li>
+          <li>元論文リンク</li>
+          <li>関連論文</li>
+        </ol>
+        <p>最初から元論文をすべて読む必要はありません。まずは、</p>
+        <ul>
+          <li>自分に関係がありそうか</li>
+          <li>少し読んでみたいか</li>
+          <li>研究テーマや開発に使えそうか</li>
+          <li>関連分野を知る入口になりそうか</li>
+        </ul>
+        <p>を判断してください。そのうえで、深く読みたい論文だけ元論文に進むと、効率よく論文を探せます。</p>
+      </section>
+
+      <!-- 6 -->
+      <section class="guide-section" id="deep-dive">
+        <h2>6. 気になった論文を深掘りする流れ</h2>
+        <p>気になる論文を見つけたら、次のような流れで読むのがおすすめです。</p>
+
+        <h3>Step 1. このサイトで概要を見る</h3>
+        <p>まず、このサイトの日本語タイトル、要約、キーワード、タグを見て、大まかな内容を掴みます。「少し気になるかどうか」を判断できれば十分です。</p>
+
+        <h3>Step 2. 元論文へ進む</h3>
+        <p>気になった論文は、元論文リンクから arXiv、DOI、出版社ページ、著者ページなどへ進みます。</p>
+
+        <h3>Step 3. Abstract と Conclusion を読む</h3>
+        <p>まずは Abstract と Conclusion を読み、論文の目的と結論を確認します。何を問題としていて、何を提案し、どのような結果を主張しているのかを把握します。</p>
+
+        <h3>Step 4. 図表と実験結果を見る</h3>
+        <p>図、表、グラフ、実験結果を確認します。結果の数値だけでなく、どの条件でその結果が出ているのかを見ることが大切です。</p>
+
+        <h3>Step 5. Method と Experiment を読む</h3>
+        <p>さらに興味があれば、Method や Experiment を読みます。提案手法の中身、比較対象、データセット、評価指標、実験条件を確認します。</p>
+
+        <h3>Step 6. 関連研究や実装を見る</h3>
+        <p>必要に応じて、Google Scholar、Semantic Scholar、Papers with Code、GitHub などで関連研究や実装を確認します。</p>
+
+        <h3>Step 7. LLM やツールで整理する</h3>
+        <p>難しい部分は、手元の LLM や翻訳ツールを使って整理しても構いません。ただし、重要な主張や数値は必ず元論文で確認してください。</p>
+      </section>
+
+      <!-- 7 -->
+      <section class="guide-section" id="llm-caution">
+        <h2>7. LLMを使うときの注意</h2>
+        <p>LLM は、論文を読むときの強力な補助ツールです。たとえば、以下のような用途に役立ちます。</p>
+        <ul>
+          <li>Abstract の要約</li>
+          <li>専門用語の説明</li>
+          <li>数式や手法の噛み砕き</li>
+          <li>実験設定の整理</li>
+          <li>関連研究との差分確認</li>
+          <li>発表資料やメモ作成の補助</li>
+          <li>英語表現の理解</li>
+        </ul>
+        <p>ただし、LLM の説明は常に正しいとは限りません。論文に書かれていないことを補ってしまったり、数値や比較条件を取り違えたり、もっともらしい説明を作ってしまうことがあります。</p>
+        <p>特に、以下の内容は必ず元論文と見比べてください。</p>
+        <ul>
+          <li>手法の新規性</li>
+          <li>実験結果</li>
+          <li>評価指標</li>
+          <li>データセット</li>
+          <li>比較対象</li>
+          <li>計算コスト</li>
+          <li>限界</li>
+          <li>著者の主張と LLM の解釈の違い</li>
+        </ul>
+        <p>LLM は、読むための補助輪としては非常に便利です。しかし、最終的な判断は元論文を確認したうえで行うことをおすすめします。</p>
+      </section>
+
+      <!-- 8 -->
+      <section class="guide-section" id="critical-reading">
+        <h2>8. 論文は少し疑って読む</h2>
+        <p>論文は、少し疑いながら読むくらいでちょうどいいです。機械学習の論文では、結果の表やグラフがとても強そうに見えることがあります。しかし、その結果がどの条件で出たものなのか、比較対象は何か、データセットは何かを見ないと、本当の意味は分かりません。</p>
+        <p>「すごい」と思ったら、次に「なぜすごく見えるのか」を確認してみましょう。たとえば、以下のような点を確認すると、論文の主張をより冷静に見られます。</p>
+        <ul>
+          <li>比較対象は公平か</li>
+          <li>そのデータセットだけで言えることか</li>
+          <li>改善幅は実用上意味があるか</li>
+          <li>計算コストや学習コストは大きすぎないか</li>
+          <li>評価指標は目的に合っているか</li>
+          <li>実験条件は現実の利用条件に近いか</li>
+          <li>既存手法との差分は本当に本質的か</li>
+          <li>比較として少し有利な設定になっていないか</li>
+        </ul>
+        <p>結果だけで判断せず、前提条件と評価方法を確認することをおすすめします。</p>
+      </section>
+
+      <!-- 9 -->
+      <section class="guide-section" id="tools">
+        <h2 id="tools-heading">9. おすすめの拡張機能・ソフト</h2>
+        <p>論文を読むときに便利な拡張機能やソフトを紹介します。</p>
+        <div class="warning-box">
+          外部サービスや拡張機能の仕様は変更される場合があります。導入前に、公式ページの説明、権限、利用条件を確認してください。
+        </div>
+
+        <div class="tool-card" id="tool-scholar-pdf-reader">
+          <div class="tool-card__name"><a href="https://chromewebstore.google.com/detail/google-scholar-pdf-reader/dahenjhkoodjbpjheillcadbppiidmhp" target="_blank" rel="noopener">Google Scholar PDF Reader ↗</a></div>
+          <div class="tool-card__desc">論文 PDF をブラウザ上で読みやすくするための Chrome 拡張機能です。PDF 上で、参考文献の確認、アウトライン表示、図表へのジャンプ、ハイライト、コメント、引用・保存などができます。</div>
+          <ul class="tool-card__points">
+            <li>長い論文 PDF でも構造を追いやすい</li>
+            <li>目次やアウトラインから読みたい箇所へ移動しやすい</li>
+            <li>文中の引用や参考文献を確認しやすい</li>
+            <li>図表を見ながら本文を読みやすい</li>
+          </ul>
+        </div>
+
+        <div class="tool-card" id="tool-scholar-button">
+          <div class="tool-card__name"><a href="https://chromewebstore.google.com/detail/google-scholar-button/ldipcbpaocekfooobnbcddclnhejkcpn" target="_blank" rel="noopener">Google Scholar Button ↗</a></div>
+          <div class="tool-card__desc">ブラウザ上の任意のページから Google Scholar 検索へすぐ移動できる Chrome 拡張機能です。論文タイトルやキーワードを選択して、Google Scholar で検索できます。</div>
+          <ul class="tool-card__points">
+            <li>論文タイトルからすぐ検索できる</li>
+            <li>PDF や別バージョンを探しやすい</li>
+            <li>被引用数や関連論文を確認しやすい</li>
+            <li>Google 検索から Scholar 検索へ移りやすい</li>
+          </ul>
+        </div>
+
+        <div class="tool-card" id="tool-zotero">
+          <div class="tool-card__name"><a href="https://www.zotero.org/" target="_blank" rel="noopener">Zotero ↗</a></div>
+          <div class="tool-card__desc">論文や書籍などの文献情報を保存・整理するための文献管理ソフトです。PDF、書誌情報、メモ、タグなどをまとめて管理できます。</div>
+          <ul class="tool-card__points">
+            <li>気になった論文をあとで見失いにくい</li>
+            <li>PDF と書誌情報をまとめて保存できる</li>
+            <li>メモやタグを付けて整理できる</li>
+            <li>卒論・修論・論文執筆時の引用管理に役立つ</li>
+            <li>Zotero Connector と組み合わせると、ブラウザから保存しやすい</li>
+          </ul>
+        </div>
+
+        <div class="tool-card" id="tool-unpaywall">
+          <div class="tool-card__name"><a href="https://unpaywall.org/products/extension" target="_blank" rel="noopener">Unpaywall ↗</a></div>
+          <div class="tool-card__desc">出版社ページなどで有料表示になっている論文について、合法的に公開されている無料版を探してくれるブラウザ拡張機能です。</div>
+          <ul class="tool-card__points">
+            <li>有料ページで諦める前に無料版を探せる</li>
+            <li>著者投稿版や機関リポジトリ版を見つけやすい</li>
+            <li>大学外や自宅から論文を読むときに便利</li>
+            <li>合法的なオープンアクセス版を探す用途に向いている</li>
+          </ul>
+        </div>
+
+        <div class="tool-card" id="tool-ar5iv">
+          <div class="tool-card__name"><a href="https://ar5iv.labs.arxiv.org/" target="_blank" rel="noopener">ar5iv ↗</a></div>
+          <div class="tool-card__desc">arXiv 論文を HTML 形式で表示するためのサービスです。arXiv の PDF をブラウザ上で読みやすい HTML として表示できる場合があります。</div>
+          <ul class="tool-card__points">
+            <li>スマホで読みやすい場合がある</li>
+            <li>ブラウザ翻訳と相性が良い</li>
+            <li>PDF より文章選択や検索がしやすい場合がある</li>
+          </ul>
+          <p style="font-size:13px;color:#888;margin-top:8px;margin-bottom:0;">数式や図表が崩れる場合があります。重要な部分は必ず元 PDF でも確認してください。</p>
+        </div>
+      </section>
+
+      <!-- 10 -->
+      <section class="guide-section" id="sites">
+        <h2 id="sites-heading">10. 関連論文や実装を探すサイト</h2>
+
+        <div class="tool-card" id="site-google-scholar">
+          <div class="tool-card__name"><a href="https://scholar.google.com/" target="_blank" rel="noopener">Google Scholar ↗</a></div>
+          <div class="tool-card__desc">学術論文を探すための定番検索サービスです。</div>
+          <ul class="tool-card__points">
+            <li>論文タイトルで検索する</li>
+            <li>被引用数を見る</li>
+            <li>関連論文を探す</li>
+            <li>著者ページを確認する</li>
+            <li>PDF や別バージョンを探す</li>
+          </ul>
+        </div>
+
+        <div class="tool-card" id="site-semantic-scholar">
+          <div class="tool-card__name"><a href="https://www.semanticscholar.org/" target="_blank" rel="noopener">Semantic Scholar ↗</a></div>
+          <div class="tool-card__desc">論文検索や関連論文探索に使えるサービスです。引用関係や関連論文を見ながら、研究の流れを掴むのに役立ちます。</div>
+          <ul class="tool-card__points">
+            <li>関連論文を探す</li>
+            <li>引用関係を見る</li>
+            <li>研究分野の流れを確認する</li>
+          </ul>
+        </div>
+
+        <div class="tool-card" id="site-papers-with-code">
+          <div class="tool-card__name"><a href="https://paperswithcode.com/" target="_blank" rel="noopener">Papers with Code ↗</a></div>
+          <div class="tool-card__desc">機械学習論文と実装コード、データセット、評価結果を結びつけて確認できるサイトです。</div>
+          <ul class="tool-card__points">
+            <li>論文の実装コードを探す</li>
+            <li>使われているデータセットを確認する</li>
+            <li>ベンチマーク結果を見る</li>
+            <li>SOTA 表を確認する</li>
+          </ul>
+        </div>
+
+        <div class="tool-card" id="site-connected-papers">
+          <div class="tool-card__name"><a href="https://www.connectedpapers.com/" target="_blank" rel="noopener">Connected Papers ↗</a></div>
+          <div class="tool-card__desc">1本の論文を起点に、関連する論文をグラフとして可視化できるサービスです。</div>
+          <ul class="tool-card__points">
+            <li>ある論文の周辺研究を知る</li>
+            <li>関連研究のまとまりを掴む</li>
+            <li>先行研究調査の入口にする</li>
+          </ul>
+          <p style="font-size:13px;color:#888;margin-top:8px;margin-bottom:0;">無料利用には制限がある場合があります。</p>
+        </div>
+      </section>
+
+      <!-- 11 -->
+      <section class="guide-section" id="beginner-reading">
+        <h2>11. 初心者向けの読み方</h2>
+        <p>最初から論文を1ページ目から最後まで読む必要はありません。特に慣れないうちは、以下の順番で読むのがおすすめです。</p>
+
+        <h3>まず見るところ</h3>
+        <ol>
+          <li>タイトル</li>
+          <li>Abstract</li>
+          <li>図表</li>
+          <li>Conclusion</li>
+          <li>Introduction</li>
+          <li>Method</li>
+          <li>Experiment</li>
+          <li>Related Work</li>
+        </ol>
+        <p>最初は論文全体を完璧に理解しようとしなくても大丈夫です。まずは「何をした論文なのか」「何が新しいと主張しているのか」「自分の興味に関係があるか」を掴むことを目指します。</p>
+
+        <h3>読むときのチェックリスト</h3>
+        <ul>
+          <li>この論文は何を解決しようとしているか</li>
+          <li>既存手法と何が違うのか</li>
+          <li>どのデータセットで評価しているか</li>
+          <li>比較対象は何か</li>
+          <li>評価指標は何か</li>
+          <li>改善幅はどの程度か</li>
+          <li>計算コストはどの程度か</li>
+          <li>実装コードは公開されているか</li>
+          <li>限界や失敗例は書かれているか</li>
+        </ul>
+
+        <h3>LLM と一緒に読む場合</h3>
+        <p>LLM に論文を読ませる場合は、以下のように聞くと整理しやすいです。</p>
+        <pre>この論文の目的、提案手法、実験設定、主な結果、限界を分けて整理してください。</pre>
+        <pre>この論文の新規性と、既存研究との差分を説明してください。
+ただし、論文本文に書かれている内容と推測を分けてください。</pre>
+        <pre>この実験結果について、比較対象、データセット、評価指標、改善幅を表に整理してください。</pre>
+        <pre>この論文で注意して読むべき前提条件や、結果を鵜呑みにしない方がよい点を挙げてください。</pre>
+        <p style="font-size:14px;color:#666;">LLM の回答は必ず元論文と照らし合わせて確認してください。</p>
+      </section>
+
+      <!-- 12 -->
+      <section class="guide-section" id="closing">
+        <h2>12. 最後に</h2>
+        <p>このサイトで興味を見つける。LLM やツールで理解を助ける。大事なところは、必ず元論文で確かめる。</p>
+        <p>この流れを意識すると、論文をただ眺めるだけでなく、自分の研究や開発に活かしやすくなります。</p>
+        <p>ML Paper Portal は、その最初の入口として使ってください。</p>
+
+        <div class="guide-callout" style="margin-top:32px;">
+          <div class="guide-callout__title">まず入れるなら</div>
+          <p style="font-size:14px;color:#1e3a8a;margin-bottom:10px;">すべてのツールを一度に使う必要はありません。まずは以下の3つから始めるのがおすすめです。</p>
+          <ol class="guide-callout__points" style="padding-left:22px;margin:0;">
+            <li style="font-size:15px;line-height:1.8;color:#1e3a8a;margin-bottom:4px;"><a href="#tool-scholar-pdf-reader">Google Scholar PDF Reader</a></li>
+            <li style="font-size:15px;line-height:1.8;color:#1e3a8a;margin-bottom:4px;"><a href="#tool-scholar-button">Google Scholar Button</a></li>
+            <li style="font-size:15px;line-height:1.8;color:#1e3a8a;margin-bottom:4px;"><a href="#tool-zotero">Zotero</a></li>
+          </ol>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>ML Paper Portal — 機械学習論文の日本語入口サイト</p>
+    <p style="margin-top:8px;">論文情報は <a href="https://openalex.org" target="_blank">OpenAlex</a> より取得。要約は参考情報です。必ず元論文をご確認ください。</p>
+  </div>
+</footer>
+</body>
+</html>
