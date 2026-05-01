@@ -26,6 +26,16 @@ jobs:
         run: npm ci
         working-directory: web
 
+      - name: Check wrangler
+        run: |
+          ./node_modules/.bin/wrangler --version
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+        working-directory: web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Generate sitemap
         run: npm run sitemap:generate
         env:

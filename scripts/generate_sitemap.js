@@ -10,6 +10,12 @@ const WEB_DIR = path.join(ROOT_DIR, 'web');
 const OUTPUT_PATH = path.join(WEB_DIR, 'public', 'sitemap.xml');
 const SITE_BASE_URL = 'https://ml-paper-portal-web.pages.dev';
 const D1_DATABASE_NAME = 'ml-paper-portal';
+const LOCAL_WRANGLER_BIN = path.join(
+  WEB_DIR,
+  'node_modules',
+  '.bin',
+  process.platform === 'win32' ? 'wrangler.cmd' : 'wrangler',
+);
 
 const SQL = {
   siteLastmod: `
@@ -46,11 +52,18 @@ ORDER BY t.slug ASC;
 `.trim(),
 };
 
-function runD1Query(sql) {
-  const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+function runD1Query(label, sql) {
+  const command = fs.existsSync(LOCAL_WRANGLER_BIN)
+    ? LOCAL_WRANGLER_BIN
+    : process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const args = fs.existsSync(LOCAL_WRANGLER_BIN)
+    ? ['d1', 'execute', D1_DATABASE_NAME, '--remote', '--json', '--command', sql]
+    : ['wrangler', 'd1', 'execute', D1_DATABASE_NAME, '--remote', '--json', '--command', sql];
+
+  console.log(`[sitemap] querying D1: ${label}`);
   const result = spawnSync(
-    npx,
-    ['wrangler', 'd1', 'execute', D1_DATABASE_NAME, '--remote', '--json', '--command', sql],
+    command,
+    args,
     {
       cwd: WEB_DIR,
       encoding: 'utf8',
@@ -60,18 +73,22 @@ function runD1Query(sql) {
   );
 
   if (result.error) {
-    throw result.error;
+    throw new Error(`Failed to start wrangler for ${label}: ${result.error.message}`);
   }
   if (result.status !== 0) {
     throw new Error(
-      `wrangler d1 execute failed (${result.status})\n${result.stderr || result.stdout}`,
+      [
+        `wrangler d1 execute failed for ${label} (exit ${result.status})`,
+        result.stderr ? `stderr:\n${result.stderr.trim()}` : null,
+        result.stdout ? `stdout:\n${result.stdout.trim()}` : null,
+      ].filter(Boolean).join('\n'),
     );
   }
 
-  return parseWranglerJson(result.stdout);
+  return parseWranglerJson(label, result.stdout);
 }
 
-function parseWranglerJson(stdout) {
+function parseWranglerJson(label, stdout) {
   const text = stdout.trim();
   if (!text) return [];
 
@@ -79,7 +96,10 @@ function parseWranglerJson(stdout) {
   try {
     parsed = JSON.parse(text);
   } catch (err) {
-    throw new Error(`Failed to parse wrangler JSON output: ${err.message}`);
+    const preview = text.slice(0, 500);
+    throw new Error(
+      `Failed to parse wrangler JSON output for ${label}: ${err.message}\nstdout preview:\n${preview}`,
+    );
   }
 
   if (Array.isArray(parsed)) {
@@ -96,7 +116,7 @@ function parseWranglerJson(stdout) {
   if (Array.isArray(parsed.result?.[0]?.results)) return parsed.result[0].results;
   if (Array.isArray(parsed.result?.results)) return parsed.result.results;
 
-  throw new Error('Unexpected wrangler JSON shape');
+  throw new Error(`Unexpected wrangler JSON shape for ${label}`);
 }
 
 function normalizeLastmod(value) {
@@ -146,9 +166,9 @@ function renderSitemap(entries) {
 }
 
 function main() {
-  const siteRows = runD1Query(SQL.siteLastmod);
-  const paperRows = runD1Query(SQL.publishedPapers);
-  const tagRows = runD1Query(SQL.publishedTags);
+  const siteRows = runD1Query('siteLastmod', SQL.siteLastmod);
+  const paperRows = runD1Query('publishedPapers', SQL.publishedPapers);
+  const tagRows = runD1Query('publishedTags', SQL.publishedTags);
 
   const siteLastmod = siteRows[0]?.lastmod ?? new Date().toISOString().slice(0, 10);
 
