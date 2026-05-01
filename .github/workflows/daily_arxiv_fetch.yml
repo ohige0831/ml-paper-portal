@@ -1,0 +1,48 @@
+name: Daily arXiv Fetch
+
+on:
+  schedule:
+    # 09:30 JST = 00:30 UTC. Runs independently from Daily OpenAlex Fetch.
+    - cron: '30 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check arXiv fetch script syntax
+        run: node --check scripts/fetch_arxiv.js
+
+      - name: Check required ingest secrets
+        run: |
+          missing=0
+          if [ -z "$WORKER_URL" ]; then
+            echo "::error::Missing GitHub secret: WORKER_URL"
+            missing=1
+          fi
+          if [ -z "$INGEST_TOKEN" ]; then
+            echo "::error::Missing GitHub secret: INGEST_TOKEN"
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+        env:
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          INGEST_TOKEN: ${{ secrets.INGEST_TOKEN }}
+
+      - name: Fetch from arXiv and ingest to Worker
+        run: node scripts/fetch_arxiv.js
+        env:
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          INGEST_TOKEN: ${{ secrets.INGEST_TOKEN }}
+          ARXIV_DAILY_LIMIT: '60'
+          DAILY_REGISTER_LIMIT: '30'

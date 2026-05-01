@@ -1,5 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
-import type { Paper, Tag, Summary, PaperStatus, PaperWithSummary } from '../types';
+import type { Paper, Tag, Summary, PaperStatus, PaperWithSummary, PaperReviewMetadata } from '../types';
 
 export async function paperExists(db: D1Database, id: string): Promise<boolean> {
   const row = await db.prepare('SELECT id FROM papers WHERE id = ?').bind(id).first();
@@ -9,7 +9,18 @@ export async function paperExists(db: D1Database, id: string): Promise<boolean> 
 // source is optional — defaults to 'auto' (auto-fetched by GitHub Actions)
 export async function insertPaper(
   db: D1Database,
-  paper: Omit<Paper, 'created_at' | 'source' | 'arxiv_id' | 'is_preprint'> & {
+  paper: Omit<
+    Paper,
+    | 'created_at'
+    | 'source'
+    | 'arxiv_id'
+    | 'is_preprint'
+    | 'normalized_title'
+    | 'ml_score'
+    | 'effective_score'
+    | 'review_tier'
+    | 'score_reasons'
+  > & {
     source?: string;
     arxiv_id?: string | null;
     is_preprint?: number;
@@ -45,6 +56,39 @@ export async function findPaperByDoi(db: D1Database, doi: string): Promise<strin
 export async function findPaperByArxivId(db: D1Database, arxivId: string): Promise<string | null> {
   const row = await db.prepare('SELECT id FROM papers WHERE arxiv_id = ?').bind(arxivId).first<{ id: string }>();
   return row?.id ?? null;
+}
+
+export async function findPaperByNormalizedTitle(
+  db: D1Database,
+  normalizedTitle: string,
+): Promise<string | null> {
+  const row = await db.prepare(
+    'SELECT id FROM papers WHERE normalized_title = ?'
+  ).bind(normalizedTitle).first<{ id: string }>();
+  return row?.id ?? null;
+}
+
+export async function updatePaperReviewMetadata(
+  db: D1Database,
+  paperId: string,
+  metadata: PaperReviewMetadata,
+): Promise<void> {
+  await db.prepare(`
+    UPDATE papers
+    SET normalized_title = ?,
+        ml_score = ?,
+        effective_score = ?,
+        review_tier = ?,
+        score_reasons = ?
+    WHERE id = ?
+  `).bind(
+    metadata.normalized_title ?? null,
+    metadata.ml_score ?? null,
+    metadata.effective_score ?? null,
+    metadata.review_tier ?? null,
+    JSON.stringify(metadata.score_reasons ?? []),
+    paperId,
+  ).run();
 }
 
 export async function getTagsBySlug(db: D1Database, slugs: string[]): Promise<Tag[]> {
@@ -270,16 +314,60 @@ export async function getPaperTags(db: D1Database, paperId: string): Promise<Tag
   return rows.results;
 }
 
+export async function getPublishedSourceCounts(
+  db: D1Database,
+): Promise<{ all: number; arxiv: number; nonArxiv: number }> {
+  const row = await db.prepare(`
+    SELECT
+      COUNT(*) as all_count,
+      SUM(CASE WHEN p.is_preprint = 1 THEN 1 ELSE 0 END) as arxiv_count,
+      SUM(CASE WHEN p.is_preprint = 0 THEN 1 ELSE 0 END) as non_arxiv_count
+    FROM papers p
+    JOIN publish_states ps ON ps.paper_id = p.id
+    WHERE ps.status = 'published'
+  `).first<{ all_count: number; arxiv_count: number; non_arxiv_count: number }>();
+  return {
+    all: row?.all_count ?? 0,
+    arxiv: row?.arxiv_count ?? 0,
+    nonArxiv: row?.non_arxiv_count ?? 0,
+  };
+}
+
+export async function getTagSourceCounts(
+  db: D1Database,
+  tagId: number,
+): Promise<{ all: number; arxiv: number; nonArxiv: number }> {
+  const row = await db.prepare(`
+    SELECT
+      COUNT(*) as all_count,
+      SUM(CASE WHEN p.is_preprint = 1 THEN 1 ELSE 0 END) as arxiv_count,
+      SUM(CASE WHEN p.is_preprint = 0 THEN 1 ELSE 0 END) as non_arxiv_count
+    FROM papers p
+    JOIN publish_states ps ON ps.paper_id = p.id
+    JOIN paper_tags pt ON pt.paper_id = p.id
+    WHERE ps.status = 'published' AND pt.tag_id = ?
+  `).bind(tagId).first<{ all_count: number; arxiv_count: number; non_arxiv_count: number }>();
+  return {
+    all: row?.all_count ?? 0,
+    arxiv: row?.arxiv_count ?? 0,
+    nonArxiv: row?.non_arxiv_count ?? 0,
+  };
+}
+
 export async function getPublishedPapers(
   db: D1Database,
   limit = 20,
   offset = 0,
+  source: 'all' | 'arxiv' | 'non-arxiv' = 'all',
 ): Promise<PaperWithSummary[]> {
+  const sourceClause =
+    source === 'arxiv' ? 'AND p.is_preprint = 1' :
+    source === 'non-arxiv' ? 'AND p.is_preprint = 0' : '';
   const rows = await db.prepare(`
     SELECT p.*, ps.status
     FROM papers p
     JOIN publish_states ps ON ps.paper_id = p.id
-    WHERE ps.status = 'published'
+    WHERE ps.status = 'published' ${sourceClause}
     ORDER BY p.published_date DESC
     LIMIT ? OFFSET ?
   `).bind(limit, offset).all<Paper & { status: PaperStatus }>();
@@ -297,13 +385,17 @@ export async function getPublishedPapersByTag(
   tagId: number,
   limit = 20,
   offset = 0,
+  source: 'all' | 'arxiv' | 'non-arxiv' = 'all',
 ): Promise<PaperWithSummary[]> {
+  const sourceClause =
+    source === 'arxiv' ? 'AND p.is_preprint = 1' :
+    source === 'non-arxiv' ? 'AND p.is_preprint = 0' : '';
   const rows = await db.prepare(`
     SELECT p.*, ps.status
     FROM papers p
     JOIN publish_states ps ON ps.paper_id = p.id
     JOIN paper_tags pt ON pt.paper_id = p.id
-    WHERE ps.status = 'published' AND pt.tag_id = ?
+    WHERE ps.status = 'published' AND pt.tag_id = ? ${sourceClause}
     ORDER BY p.published_date DESC
     LIMIT ? OFFSET ?
   `).bind(tagId, limit, offset).all<Paper & { status: PaperStatus }>();

@@ -33,6 +33,7 @@ const OPENALEX_API_KEY = process.env.OPENALEX_API_KEY ?? null;
 const MAILTO           = process.env.OPENALEX_MAILTO ?? 'kagerou5100@gmail.com';
 const OPENALEX_SLEEP_MS = Number(process.env.OPENALEX_SLEEP_MS ?? '7000');
 const DRY_RUN          = process.argv.includes('--dry-run') || process.env.DRY_RUN === '1';
+const mlScoring = require('./lib/ml_scoring');
 
 /**
  * API key が設定されていれば { api_key } を、なければ { mailto } を返す。
@@ -563,13 +564,16 @@ async function main() {
   // ── ML Relevance Filter ───────────────────────────────────────────────────
 
   console.log('[fetch_openalex] Scoring ML relevance...');
-  const { toIngest, filtered, noiseCount } = filterCandidates(allWorks);
+  const { toIngest, filtered, noiseCount } = mlScoring.filterCandidates(allWorks, {
+    dryRun: DRY_RUN,
+    threshold: FILTER_THRESHOLD,
+  });
   const mlRejected = filtered.length;
 
   if (DRY_RUN) {
     // noise 論文を除いたもののみスコア計算（noise はすでに [noise] ログ済み）
-    const scoredWorks = allWorks.filter((w) => !isJournalNoise(w.title));
-    const allScores   = scoredWorks.map((w) => scoreMlRelevance(w).score);
+    const scoredWorks = allWorks.filter((w) => !mlScoring.isJournalNoise(w.title));
+    const allScores   = scoredWorks.map((w) => mlScoring.scoreMlRelevance(w).score);
     const passCount   = allScores.filter((s) => s >= FILTER_THRESHOLD).length;
     const failCount   = allScores.length - passCount;
     const avg = allScores.length > 0

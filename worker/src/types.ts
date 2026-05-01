@@ -5,6 +5,8 @@ export interface Env {
   INGEST_TOKEN: string;         // GitHub Actions → Worker ingest auth
   OPENAI_MODEL?: string;        // default: gpt-4o-mini
   SITE_BASE_URL?: string;       // public site URL (for admin links)
+  DAILY_REGISTER_LIMIT?: string;
+  OPENALEX_API_KEY?: string;    // optional — preferred over mailto when set
 }
 
 // D1 row shapes
@@ -24,7 +26,22 @@ export interface Paper {
   source: string;               // 'auto' | 'manual' | 'keyword_curated'
   arxiv_id: string | null;      // bare arXiv ID (e.g. "2401.12345"), null for non-arXiv
   is_preprint: number;          // 1 if sourced from arXiv, 0 otherwise
+  normalized_title: string | null;
+  ml_score: number | null;
+  effective_score: number | null;
+  review_tier: ReviewTier | null;
+  score_reasons: string;        // JSON: string[]
   created_at: string;
+}
+
+export type ReviewTier = 'A' | 'B' | 'C';
+
+export interface PaperReviewMetadata {
+  normalized_title?: string | null;
+  ml_score?: number | null;
+  effective_score?: number | null;
+  review_tier?: ReviewTier | null;
+  score_reasons?: string[];
 }
 
 export interface Tag {
