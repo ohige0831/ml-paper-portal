@@ -245,6 +245,11 @@ export async function getPapersByStatus(
   status: PaperStatus,
   limit = 50,
 ): Promise<PaperWithSummary[]> {
+  const orderBy = status === 'review_pending'
+    ? `CASE p.review_tier WHEN 'A' THEN 1 WHEN 'B' THEN 2 WHEN 'C' THEN 3 ELSE 4 END ASC,
+       COALESCE(p.effective_score, -1) DESC,
+       p.published_date DESC`
+    : `p.published_date DESC`;
   const rows = await db.prepare(`
     SELECT p.*, ps.status, ps.error_message,
            ps.withdrawn_at, ps.withdrawn_reason, ps.withdrawn_by,
@@ -253,7 +258,7 @@ export async function getPapersByStatus(
     FROM papers p
     JOIN publish_states ps ON ps.paper_id = p.id
     WHERE ps.status = ?
-    ORDER BY p.published_date DESC
+    ORDER BY ${orderBy}
     LIMIT ?
   `).bind(status, limit).all<Paper & {
     status: PaperStatus;

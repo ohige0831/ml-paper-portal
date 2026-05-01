@@ -658,6 +658,10 @@ function buildAdminHtml(siteUrl: string): string {
   .status-withdrawn { background: #e5e7eb; color: #4b5563; }
   .status-rejected  { background: #fce7f3; color: #9d174d; }
   .status-needs_recheck { background: #fef3c7; color: #92400e; }
+  .tier-badge { display:inline-block; padding:1px 7px; border-radius:4px; font-size:11px; font-weight:700; flex-shrink:0; }
+  .tier-A { background:#fde68a; color:#78350f; }
+  .tier-B { background:#dbeafe; color:#1e40af; }
+  .tier-C { background:#e5e7eb; color:#374151; }
   .paper-list { display: flex; flex-direction: column; gap: 12px; }
   .paper-card { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; }
   .paper-card:hover { border-color: #2563eb; }
@@ -723,6 +727,7 @@ function buildAdminHtml(siteUrl: string): string {
       </select>
       <button class="btn btn-outline" onclick="loadPapers()">更新</button>
     </div>
+    <div id="tier-filter" style="display:none;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap;"></div>
     <div id="msg"></div>
     <div class="split">
       <div>
@@ -772,6 +777,41 @@ function buildAdminHtml(siteUrl: string): string {
 <script>
 let papers = [];
 let selectedId = null;
+let tierFilter = 'all';
+
+function filteredPapers() {
+  if (tierFilter === 'all') return papers;
+  return papers.filter(function(p) { return p.paper.review_tier === tierFilter; });
+}
+
+function renderTierFilter() {
+  const status = document.getElementById('status-select').value;
+  const el = document.getElementById('tier-filter');
+  if (status !== 'review_pending') { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  const counts = {
+    all: papers.length,
+    A: papers.filter(function(p) { return p.paper.review_tier === 'A'; }).length,
+    B: papers.filter(function(p) { return p.paper.review_tier === 'B'; }).length,
+    C: papers.filter(function(p) { return p.paper.review_tier === 'C'; }).length,
+  };
+  const tiers = [
+    { key: 'all', label: 'All' },
+    { key: 'A', label: 'Tier A' },
+    { key: 'B', label: 'Tier B' },
+    { key: 'C', label: 'Tier C' },
+  ];
+  el.innerHTML = tiers.map(function(t) {
+    const active = tierFilter === t.key ? ' btn-primary' : ' btn-outline';
+    return '<button class="btn' + active + '" style="font-size:12px;padding:5px 10px" onclick="setTierFilter(\'' + t.key + '\')">' + t.label + ' (' + counts[t.key] + ')</button>';
+  }).join('');
+}
+
+function setTierFilter(tier) {
+  tierFilter = tier;
+  renderTierFilter();
+  renderPaperList();
+}
 
 async function api(path, method = 'GET', body = null) {
   const opts = {
@@ -787,10 +827,12 @@ async function api(path, method = 'GET', body = null) {
 
 async function loadPapers() {
   const status = document.getElementById('status-select').value;
+  tierFilter = 'all';
   document.getElementById('paper-list').innerHTML = '<div class="empty">読み込み中...</div>';
   document.getElementById('detail-panel').style.display = 'none';
   try {
     papers = await api('/api/papers?status=' + status);
+    renderTierFilter();
     renderPaperList();
   } catch(e) {
     showMsg('読み込みエラー: ' + e.message, false);
@@ -799,22 +841,34 @@ async function loadPapers() {
 
 function renderPaperList() {
   const el = document.getElementById('paper-list');
-  if (!papers.length) { el.innerHTML = '<div class="empty">論文がありません</div>'; return; }
-  el.innerHTML = papers.map(p => {
+  const displayed = filteredPapers();
+  if (!displayed.length) { el.innerHTML = '<div class="empty">論文がありません</div>'; return; }
+  el.innerHTML = displayed.map(p => {
     const title = p.summary?.title_ja || p.paper.title;
     const oneLine = p.summary?.one_line || '';
     const date = p.paper.published_date?.slice(0, 7) || '';
     const citations = p.paper.citation_count;
     const tags = (p.tags || []).map(t => \`<span class="tag">\${t.name}</span>\`).join('');
+    const tier = p.paper.review_tier;
+    const tierBadge = tier ? \`<span class="tier-badge tier-\${tier}">Tier \${tier}</span>\` : '';
+    const srcLabel = p.paper.is_preprint ? 'arXiv' : 'OpenAlex';
+    const mlScore = p.paper.ml_score;
+    const effScore = p.paper.effective_score;
+    const scoreText = (mlScore != null || effScore != null)
+      ? \`<span style="font-size:11px;color:#aaa">ML:\${mlScore ?? '-'} / Eff:\${effScore ?? '-'}</span>\`
+      : '';
     return \`<div class="paper-card\${selectedId === p.paper.id ? ' selected' : ''}" onclick="selectPaper('\${p.paper.id}')">
       <div class="paper-card-header">
         <div class="paper-card-title">\${escHtml(title)}</div>
+        \${tierBadge}
         <span class="status-badge status-\${p.status}">\${p.status}</span>
       </div>
       \${oneLine ? \`<div class="paper-card-summary">\${escHtml(oneLine)}</div>\` : ''}
       <div class="paper-card-meta">
         <span>\${date}</span>
         \${citations ? \`<span>被引用 \${citations}</span>\` : ''}
+        <span>\${escHtml(srcLabel)}</span>
+        \${scoreText}
       </div>
       \${tags ? \`<div class="tags">\${tags}</div>\` : ''}
     </div>\`;
@@ -841,10 +895,19 @@ function renderDetail(p) {
   const tags = (p.tags || []).map(t => \`<span class="tag">\${escHtml(t.name)}</span>\`).join('');
   const status = p.status;
 
+  const tier = paper.review_tier;
+  const tierBadge = tier ? \`<span class="tier-badge tier-\${tier}">Tier \${tier}</span>\` : '';
+  const srcLabel = paper.is_preprint ? 'arXiv' : 'OpenAlex';
+  const mlScore = paper.ml_score;
+  const effScore = paper.effective_score;
+
   panel.innerHTML = \`
     <h2>\${escHtml(titleJa)}</h2>
     <div style="margin-top:6px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
       <span class="status-badge status-\${status}">\${status}</span>
+      \${tierBadge}
+      <span style="font-size:12px;color:#888">\${escHtml(srcLabel)}</span>
+      \${(mlScore != null || effScore != null) ? \`<span style="font-size:12px;color:#aaa">ML:\${mlScore ?? '-'} Eff:\${effScore ?? '-'}</span>\` : ''}
       <span style="font-size:12px;color:#888">\${paper.id}</span>
     </div>
     \${s?.one_line ? \`<div style="margin-top:12px;font-size:15px;color:#333;">\${escHtml(s.one_line)}</div>\` : ''}
