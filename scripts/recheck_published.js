@@ -3,21 +3,33 @@
 // Weekly LLM batch recheck: flags published papers that may be irrelevant to ML/AI.
 //
 // Usage:
-//   node scripts/recheck_published.js              # check unchecked papers
-//   node scripts/recheck_published.js --all        # re-check ALL published papers
-//   node scripts/recheck_published.js --dry-run    # print decisions, no submit
+//   node scripts/recheck_published.js                 # check unchecked papers
+//   node scripts/recheck_published.js --all           # re-check ALL published papers
+//   node scripts/recheck_published.js --dry-run       # print decisions, no submit
+//   node scripts/recheck_published.js --limit 20      # override paper count
 //
 // Required env vars:
 //   WORKER_URL, INGEST_TOKEN, OPENAI_API_KEY
 // Optional:
-//   OPENAI_MODEL (default: gpt-4o-mini)
-//   RECHECK_LIMIT (default: 100, max 500)
+//   OPENAI_MODEL       default: gpt-4o-mini
+//   RECHECK_LIMIT      default: 50  (overridden by --limit N)
+//   RECHECK_SLEEP_MS   default: 3000  inter-paper wait (0 to disable)
 
-const WORKER_URL    = process.env.WORKER_URL;
-const INGEST_TOKEN  = process.env.INGEST_TOKEN;
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const WORKER_URL     = process.env.WORKER_URL;
+const INGEST_TOKEN   = process.env.INGEST_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL  = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
-const LIMIT         = Math.min(Number(process.env.RECHECK_LIMIT ?? '100'), 500);
+const OPENAI_MODEL   = process.env.OPENAI_MODEL  ?? 'gpt-4o-mini';
+const SLEEP_MS       = Number(process.env.RECHECK_SLEEP_MS ?? '3000');
+const MAX_RETRIES    = 4; // max retries per paper (5 total attempts)
+
+// --limit N takes priority over RECHECK_LIMIT env var
+const limitArgIdx = process.argv.indexOf('--limit');
+const cliLimit    = (limitArgIdx !== -1 && !isNaN(Number(process.argv[limitArgIdx + 1])))
+  ? Number(process.argv[limitArgIdx + 1])
+  : null;
+const LIMIT = Math.min(cliLimit ?? Number(process.env.RECHECK_LIMIT ?? '50'), 500);
 
 const DRY_RUN  = process.argv.includes('--dry-run');
 const ALL_MODE = process.argv.includes('--all');
@@ -26,6 +38,34 @@ if (!WORKER_URL || !INGEST_TOKEN || !OPENAI_API_KEY) {
   console.error('[recheck] ERROR: WORKER_URL, INGEST_TOKEN, OPENAI_API_KEY are required');
   process.exit(1);
 }
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+// ── Typed errors for retry classification ─────────────────────────────────────
+
+class OpenAiRateLimitError extends Error {
+  /** @param {number|null} retryAfterMs — from Retry-After header, or null */
+  constructor(retryAfterMs) {
+    super('OpenAI 429 rate_limit_exceeded');
+    this.name          = 'OpenAiRateLimitError';
+    this.retryAfterMs  = retryAfterMs;
+  }
+}
+
+class OpenAiServerError extends Error {
+  /** @param {number} status — 5xx HTTP status */
+  constructor(status) {
+    super(`OpenAI ${status} server error`);
+    this.name   = 'OpenAiServerError';
+    this.status = status;
+  }
+}
+
+// ── Worker API ────────────────────────────────────────────────────────────────
 
 async function workerApi(path, method = 'GET', body = null) {
   const opts = {
@@ -43,6 +83,8 @@ async function workerApi(path, method = 'GET', body = null) {
   }
   return res.json();
 }
+
+// ── LLM call — single attempt, throws typed errors on 429 / 5xx ──────────────
 
 async function llmRecheck(paper) {
   const title    = paper.title ?? '';
@@ -77,9 +119,21 @@ async function llmRecheck(paper) {
     }),
   });
 
+  // 429 → throw retryable error with Retry-After if present
+  if (res.status === 429) {
+    const retryAfterSec = Number(res.headers.get('Retry-After') ?? '0');
+    throw new OpenAiRateLimitError(retryAfterSec > 0 ? retryAfterSec * 1000 : null);
+  }
+
+  // 5xx → throw retryable server error
+  if (res.status >= 500) {
+    throw new OpenAiServerError(res.status);
+  }
+
+  // other non-ok (400, 401, 403 …) → not retryable
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`OpenAI ${res.status}: ${text}`);
+    throw new Error(`OpenAI ${res.status}: ${text.slice(0, 200)}`);
   }
 
   const data = await res.json();
@@ -99,8 +153,51 @@ async function llmRecheck(paper) {
   };
 }
 
+// ── Retry wrapper — exponential backoff, honours Retry-After ─────────────────
+
+async function llmRecheckWithRetry(paper) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await llmRecheck(paper);
+    } catch (err) {
+      const isRetryable = err instanceof OpenAiRateLimitError || err instanceof OpenAiServerError;
+      if (!isRetryable || attempt === MAX_RETRIES) throw err;
+
+      let waitMs;
+      let label;
+
+      if (err instanceof OpenAiRateLimitError && err.retryAfterMs != null) {
+        // Use Retry-After header + small buffer
+        waitMs = err.retryAfterMs + 500;
+        label  = `429 Retry-After=${Math.round(err.retryAfterMs / 1000)}s`;
+      } else if (err instanceof OpenAiRateLimitError) {
+        // 429 without Retry-After → exponential backoff
+        waitMs = 1000 * (2 ** attempt); // 1s → 2s → 4s → 8s
+        label  = '429 no-header';
+      } else {
+        // 5xx → exponential backoff
+        waitMs = 1000 * (2 ** attempt);
+        label  = `${err.status}`;
+      }
+
+      console.log(`  [retry#${attempt + 1}/${MAX_RETRIES}] ${label}  wait=${Math.round(waitMs / 1000)}s`);
+      await sleep(waitMs);
+    }
+  }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
 async function main() {
-  console.log(`[recheck] start  model=${OPENAI_MODEL}  limit=${LIMIT}  dry_run=${DRY_RUN}  all=${ALL_MODE}`);
+  console.log(
+    `[recheck] start` +
+    `  model=${OPENAI_MODEL}` +
+    `  limit=${LIMIT}` +
+    `  sleep=${SLEEP_MS}ms` +
+    `  max_retries=${MAX_RETRIES}` +
+    `  dry_run=${DRY_RUN}` +
+    `  all=${ALL_MODE}`,
+  );
 
   const pendingUrl = `/api/recheck/pending?limit=${LIMIT}${ALL_MODE ? '&all=1' : ''}`;
   const { papers, count } = await workerApi(pendingUrl);
@@ -111,15 +208,22 @@ async function main() {
     return;
   }
 
-  const results = [];
-  let flaggedCount = 0;
-  let passedCount  = 0;
-  let errorCount   = 0;
+  const results     = [];
+  let flaggedCount  = 0;
+  let passedCount   = 0;
+  let errorCount    = 0;
 
-  for (const paper of papers) {
+  for (let i = 0; i < papers.length; i++) {
+    const paper = papers[i];
+
+    // Inter-paper sleep (skip before the very first call)
+    if (i > 0 && SLEEP_MS > 0) {
+      await sleep(SLEEP_MS);
+    }
+
     try {
-      const result = await llmRecheck(paper);
-      const label = result.flag ? 'FLAG' : 'pass';
+      const result = await llmRecheckWithRetry(paper);
+      const label  = result.flag ? 'FLAG' : 'pass';
       console.log(`  [${label}] (${result.confidence}) ${(paper.title ?? '').slice(0, 70)}`);
       if (result.flag) console.log(`         reason: ${result.reason}`);
 
@@ -136,18 +240,33 @@ async function main() {
         });
       }
     } catch (err) {
-      console.error(`  [error] ${paper.id}: ${err.message}`);
+      // Distinguish 429/5xx exhausted vs other errors in the log
+      const errLabel = err instanceof OpenAiRateLimitError ? '429-exhausted'
+        : err instanceof OpenAiServerError ? `${err.status}-exhausted`
+        : 'error';
+      console.error(`  [${errLabel}] ${paper.id}: ${err.message}`);
       errorCount++;
     }
   }
 
   if (!DRY_RUN && results.length > 0) {
     const submitResult = await workerApi('/api/recheck/submit', 'POST', { results });
-    console.log(`[recheck] submit → flagged=${submitResult.flagged} passed=${submitResult.passed} errors=${submitResult.errors}`);
+    console.log(
+      `[recheck] submit → flagged=${submitResult.flagged}` +
+      `  passed=${submitResult.passed}` +
+      `  errors=${submitResult.errors}`,
+    );
   }
 
   const dryTag = DRY_RUN ? ' (DRY_RUN — no submit)' : '';
-  console.log(`[recheck] done  total=${papers.length}  flagged=${flaggedCount}  passed=${passedCount}  errors=${errorCount}${dryTag}`);
+  console.log(
+    `[recheck] done` +
+    `  total=${papers.length}` +
+    `  flagged=${flaggedCount}` +
+    `  passed=${passedCount}` +
+    `  errors=${errorCount}` +
+    dryTag,
+  );
 }
 
 main().catch((err) => {
