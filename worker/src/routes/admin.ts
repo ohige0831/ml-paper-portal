@@ -808,7 +808,7 @@ function renderPaperList() {
     const tags = (p.tags || []).map(t => \`<span class="tag">\${t.name}</span>\`).join('');
     return \`<div class="paper-card\${selectedId === p.paper.id ? ' selected' : ''}" onclick="selectPaper('\${p.paper.id}')">
       <div class="paper-card-header">
-        <div class="paper-card-title">\${escHtml(title)}</div>
+        <div class="paper-card-title">\${escHtml(title)}\${p.paper.review_tier ? \` <span>Tier \${escHtml(p.paper.review_tier)}</span>\` : ''}</div>
         <span class="status-badge status-\${p.status}">\${p.status}</span>
       </div>
       \${oneLine ? \`<div class="paper-card-summary">\${escHtml(oneLine)}</div>\` : ''}
