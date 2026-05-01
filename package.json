@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "sitemap:generate": "node scripts/generate_sitemap.js"
+  },
   "devDependencies": {
     "typescript": "^6.0.3"
   }
