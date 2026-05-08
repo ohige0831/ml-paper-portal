@@ -3,12 +3,27 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-05-08</lastmod>
   </url>
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/latest/</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-05-08</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/arxiv2605_06635</loc>
+    <lastmod>2026-05-08</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/arxiv2605_06652</loc>
+    <lastmod>2026-05-08</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/arxiv2605_06656</loc>
+    <lastmod>2026-05-08</lastmod>
   </url>
 
   <url>
@@ -2513,7 +2528,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/benchmark/</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-05-08</lastmod>
   </url>
 
   <url>
@@ -2563,7 +2578,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/llm/</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-05-08</lastmod>
   </url>
 
   <url>
@@ -2583,7 +2598,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/rag/</loc>
-    <lastmod>2026-05-06</lastmod>
+    <lastmod>2026-05-08</lastmod>
   </url>
 
   <url>
