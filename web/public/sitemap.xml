@@ -3,12 +3,12 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/</loc>
-    <lastmod>2026-05-11</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/latest/</loc>
-    <lastmod>2026-05-11</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -159,6 +159,11 @@
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/arxiv2605_06667</loc>
     <lastmod>2026-05-09</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w1571652108</loc>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -774,6 +779,11 @@
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w1869302287</loc>
     <lastmod>2026-05-11</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w4291220703</loc>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -1542,6 +1552,11 @@
   </url>
 
   <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w4405463625</loc>
+    <lastmod>2026-05-12</lastmod>
+  </url>
+
+  <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w4405195133</loc>
     <lastmod>2026-05-10</lastmod>
   </url>
@@ -1582,6 +1597,11 @@
   </url>
 
   <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w4404513319</loc>
+    <lastmod>2026-05-12</lastmod>
+  </url>
+
+  <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w4403731508</loc>
     <lastmod>2026-04-30</lastmod>
   </url>
@@ -1609,6 +1629,11 @@
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w4403173507</loc>
     <lastmod>2026-05-10</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w4404418885</loc>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -1699,6 +1724,11 @@
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w4400891187</loc>
     <lastmod>2026-04-30</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w4400734276</loc>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2087,6 +2117,11 @@
   </url>
 
   <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w3007943565</loc>
+    <lastmod>2026-05-12</lastmod>
+  </url>
+
+  <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w3016525976</loc>
     <lastmod>2026-04-30</lastmod>
   </url>
@@ -2319,6 +2354,11 @@
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w2145832734</loc>
     <lastmod>2026-04-30</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w2793931959</loc>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2602,6 +2642,11 @@
   </url>
 
   <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w1612304093</loc>
+    <lastmod>2026-05-12</lastmod>
+  </url>
+
+  <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w2168770424</loc>
     <lastmod>2026-04-30</lastmod>
   </url>
@@ -2697,6 +2742,11 @@
   </url>
 
   <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/w2040399713</loc>
+    <lastmod>2026-05-12</lastmod>
+  </url>
+
+  <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/w1515777901</loc>
     <lastmod>2026-04-30</lastmod>
   </url>
@@ -2733,7 +2783,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/anomaly-detection/</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2743,12 +2793,12 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/benchmark/</loc>
-    <lastmod>2026-05-11</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/cnn/</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2768,7 +2818,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/fine-tuning/</loc>
-    <lastmod>2026-05-11</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2783,7 +2833,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/inference-speedup/</loc>
-    <lastmod>2026-05-06</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2793,7 +2843,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/llm/</loc>
-    <lastmod>2026-05-11</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2818,7 +2868,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/reinforcement-learning/</loc>
-    <lastmod>2026-05-11</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
@@ -2833,7 +2883,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/vision/</loc>
-    <lastmod>2026-05-11</lastmod>
+    <lastmod>2026-05-12</lastmod>
   </url>
 
   <url>
