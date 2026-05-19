@@ -3,12 +3,12 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
   </url>
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/latest/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
   </url>
 
   <url>
@@ -74,6 +74,11 @@
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/papers/arxiv2605_15154</loc>
     <lastmod>2026-05-17</lastmod>
+  </url>
+
+  <url>
+    <loc>https://ml-paper-portal-web.pages.dev/papers/arxiv2605_15155</loc>
+    <lastmod>2026-05-18</lastmod>
   </url>
 
   <url>
@@ -3078,7 +3083,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/agent/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
   </url>
 
   <url>
@@ -3108,7 +3113,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/distillation/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
   </url>
 
   <url>
@@ -3168,7 +3173,7 @@
 
   <url>
     <loc>https://ml-paper-portal-web.pages.dev/tags/reinforcement-learning/</loc>
-    <lastmod>2026-05-17</lastmod>
+    <lastmod>2026-05-18</lastmod>
   </url>
 
   <url>
